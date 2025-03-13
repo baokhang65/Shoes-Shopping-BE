@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import morgan from "morgan";
-import productRoutes from "./routes/product.routes.js";
+import productRoutes from "./routes/productsRoute.js";
 
 const app = express();
 

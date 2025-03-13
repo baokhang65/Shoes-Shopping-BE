@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import morgan from "morgan";
+import productRoutes from "./routes/product.routes.js";
 
 const app = express();
 
@@ -13,8 +14,15 @@ app.use(express.static("public"));
 app.use(express.static("public"));
 app.use(morgan("dev"));
 
-//API routes
 
+//API routes
+app.use("/api/products", productRoutes);
+
+// Middleware xử lý lỗi chung
+app.use((err, req, res, next) => {
+    console.error("Error:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+});
 
 //404 error
 app.use((req, res) => {

@@ -1,0 +1,170 @@
+[
+    {
+        "id": 1,
+        "name": "Nike Air Max 270",
+        "brand": "Nike",
+        "color": "Red",
+        "price": 150,
+        "image": "https://example.com/nike-air-max-270.jpg"
+    },
+    {
+        "id": 2,
+        "name": "Nike Air Force 1",
+        "brand": "Nike",
+        "color": "White",
+        "price": 120,
+        "image": "https://example.com/nike-air-force-1.jpg"
+    },
+    {
+        "id": 3,
+        "name": "Nike React Vision",
+        "brand": "Nike",
+        "color": "Blue",
+        "price": 140,
+        "image": "https://example.com/nike-react-vision.jpg"
+    },
+    {
+        "id": 4,
+        "name": "Nike Dunk Low",
+        "brand": "Nike",
+        "color": "Green",
+        "price": 130,
+        "image": "https://example.com/nike-dunk-low.jpg"
+    },
+    {
+        "id": 5,
+        "name": "Nike Pegasus 39",
+        "brand": "Nike",
+        "color": "Black",
+        "price": 160,
+        "image": "https://example.com/nike-pegasus-39.jpg"
+    },
+    {
+        "id": 6,
+        "name": "Nike Blazer Mid 77",
+        "brand": "Nike",
+        "color": "Gray",
+        "price": 110,
+        "image": "https://example.com/nike-blazer-mid-77.jpg"
+    },
+    {
+        "id": 7,
+        "name": "Nike ZoomX Vaporfly",
+        "brand": "Nike",
+        "color": "Pink",
+        "price": 180,
+        "image": "https://example.com/nike-zoomx-vaporfly.jpg"
+    },
+    {
+        "id": 8,
+        "name": "Adidas Ultraboost",
+        "brand": "Adidas",
+        "color": "White",
+        "price": 180,
+        "image": "https://example.com/adidas-ultraboost.jpg"
+    },
+    {
+        "id": 9,
+        "name": "Adidas NMD R1",
+        "brand": "Adidas",
+        "color": "Black",
+        "price": 140,
+        "image": "https://example.com/adidas-nmd-r1.jpg"
+    },
+    {
+        "id": 10,
+        "name": "Adidas Superstar",
+        "brand": "Adidas",
+        "color": "Blue",
+        "price": 110,
+        "image": "https://example.com/adidas-superstar.jpg"
+    },
+    {
+        "id": 11,
+        "name": "Adidas Stan Smith",
+        "brand": "Adidas",
+        "color": "Green",
+        "price": 100,
+        "image": "https://example.com/adidas-stan-smith.jpg"
+    },
+    {
+        "id": 12,
+        "name": "Adidas Yeezy Boost 350",
+        "brand": "Adidas",
+        "color": "Gray",
+        "price": 200,
+        "image": "https://example.com/adidas-yeezy-boost-350.jpg"
+    },
+    {
+        "id": 13,
+        "name": "Adidas Forum Low",
+        "brand": "Adidas",
+        "color": "Red",
+        "price": 120,
+        "image": "https://example.com/adidas-forum-low.jpg"
+    },
+    {
+        "id": 14,
+        "name": "Adidas Gazelle",
+        "brand": "Adidas",
+        "color": "Pink",
+        "price": 90,
+        "image": "https://example.com/adidas-gazelle.jpg"
+    },
+    {
+        "id": 15,
+        "name": "Vans Old Skool",
+        "brand": "Vans",
+        "color": "Black",
+        "price": 80,
+        "image": "https://example.com/vans-old-skool.jpg"
+    },
+    {
+        "id": 16,
+        "name": "Vans Slip-On",
+        "brand": "Vans",
+        "color": "White",
+        "price": 75,
+        "image": "https://example.com/vans-slip-on.jpg"
+    },
+    {
+        "id": 17,
+        "name": "Vans Sk8-Hi",
+        "brand": "Vans",
+        "color": "Blue",
+        "price": 85,
+        "image": "https://example.com/vans-sk8-hi.jpg"
+    },
+    {
+        "id": 18,
+        "name": "Vans Era",
+        "brand": "Vans",
+        "color": "Green",
+        "price": 70,
+        "image": "https://example.com/vans-era.jpg"
+    },
+    {
+        "id": 19,
+        "name": "Vans Authentic",
+        "brand": "Vans",
+        "color": "Gray",
+        "price": 65,
+        "image": "https://example.com/vans-authentic.jpg"
+    },
+    {
+        "id": 20,
+        "name": "Vans UltraRange",
+        "brand": "Vans",
+        "color": "Red",
+        "price": 90,
+        "image": "https://example.com/vans-ultrarange.jpg"
+    },
+    {
+        "id": 21,
+        "name": "Vans Bold Ni",
+        "brand": "Vans",
+        "color": "Pink",
+        "price": 95,
+        "image": "https://example.com/vans-bold-ni.jpg"
+    }
+]

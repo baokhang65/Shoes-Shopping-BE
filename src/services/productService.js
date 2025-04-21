@@ -2,7 +2,7 @@
 import { slugify } from '~/utils/formatters'
 import { productModel } from '~/models/productModel'
 import ApiError from '~/utils/ApiError'
-import { NOT_FOUND, StatusCodes } from 'http-status-codes'
+import { StatusCodes } from 'http-status-codes'
 
 const createNew = async (reqBody) => {
   try {
@@ -21,11 +21,11 @@ const createNew = async (reqBody) => {
 
 const getDetails = async (productId) => {
   try {
-    const board = await productModel.getDetails(productId)
-    if(!board) {
+    const product = await productModel.getDetails(productId)
+    if (!product) {
       throw new ApiError(StatusCodes.NOT_FOUND)
     }
-    return board
+    return product
   } catch (error) { throw error }
 }
 

@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { StatusCodes } from 'http-status-codes'
-// import { env } from '~/config/environment'
+import { env } from '~/config/environment'
 
 // Error Handling Middleware Back-end NodeJS (ExpressJS)
 export const errorHandlingMiddleware = (err, req, res, next) => {
@@ -16,7 +16,7 @@ export const errorHandlingMiddleware = (err, req, res, next) => {
   }
   // console.error(responseError)
 
-  // if (env.BUILD_MODE !== 'dev') delete responseError.stack
+  if (env.BUILD_MODE !== 'dev') delete responseError.stack
   // console.error(responseError)
 
   // Response responseError to Front-end

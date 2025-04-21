@@ -3,10 +3,6 @@ import { productService } from '~/services/productService'
 
 const createNew = async (req, res, next) => {
   try {
-    // console.log('req.body:', req.body)
-    // console.log('req.query:', req.query)
-    // console.log('req.params:', req.params)
-
     // Service layer
     const createProduct = await productService.createNew(req.body)
 
@@ -15,6 +11,15 @@ const createNew = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getDetails = async (req, res, next) => {
+  try {
+    const productID = req.params.id
+    const product = await productService.getDetails(productID)
+    res.status(StatusCodes.OK).json(product)
+  } catch (error) { next(error) }
+}
+
 export const productController = {
-  createNew
+  createNew,
+  getDetails
 }

@@ -42,9 +42,18 @@ const findOneById = async (id) => {
   } catch (error) { throw new Error(error) }
 }
 
+const getDetails = async (id) => {
+  try {
+    // Update aggregate later
+    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOne({ _id:  new ObjectId(String(id)) })
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
 export const productModel = {
   PRODUCT_COLLECTION_NAME,
   PRODUCT_COLLECTION_SCHEMA,
   createNew,
-  findOneById
+  findOneById,
+  getDetails
 }

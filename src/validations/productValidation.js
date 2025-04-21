@@ -4,17 +4,16 @@ import ApiError from '~/utils/ApiError'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
-    name: Joi.string().required().pattern(/^\S(.*\S)?$/).strict(),
-    price: Joi.number().required().greater(0).strict(),
-    description: Joi.string().min(3).max(255).required().pattern(/^\S(.*\S)?$/).strict(),
-    brand: Joi.string().trim().valid('Nike', 'Adidas', 'Vans').required(),
+    name: Joi.string().required().min(2).max(100).pattern(/^\S(.*\S)?$/).strict(),
+    brand: Joi.string().required().valid('Nike', 'Adidas', 'Vans'),
+    description: Joi.string().allow('', null).default(''),
     variants: Joi.array().items(
       Joi.object({
-        color: Joi.string().required().pattern(/^\S(.*\S)?$/).strict(),
-        size: Joi.number().strict().required(),
-        stock: Joi.number().strict().integer().min(0).required()
+        price: Joi.number().required().strict().greater(0),
+        size: Joi.number().required().strict(),
+        stock: Joi.number().integer().min(0).strict().required()
       })
-    ).required()
+    ).default([])
   })
 
   try {

@@ -1,19 +1,20 @@
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
+import { PRODUCT_BRANDS } from '~/utils/constants'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
-    name: Joi.string().required().min(2).max(100).pattern(/^\S(.*\S)?$/).strict(),
-    brand: Joi.string().required().valid('Nike', 'Adidas', 'Vans'),
-    description: Joi.string().allow('', null).default(''),
-    variants: Joi.array().items(
+    name: Joi.string().min(2).max(100).trim().required(),
+    brand: Joi.string().valid(PRODUCT_BRANDS.NIKE, PRODUCT_BRANDS.ADIDAS, PRODUCT_BRANDS.VANS).required(),
+    description: Joi.string().trim().required(),
+    price: Joi.number().precision(2).positive().required(),
+    sizes: Joi.array().items(
       Joi.object({
-        price: Joi.number().required().strict().greater(0),
-        size: Joi.number().required().strict(),
-        stock: Joi.number().integer().min(0).strict().required()
-      })
-    ).default([])
+        size: Joi.string().trim().required(),
+        stock: Joi.number().integer().min(0).default(0)
+      }).strict()
+    ).required()
   })
 
   try {

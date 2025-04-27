@@ -1,6 +1,8 @@
 import express from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { productRoute } from './productRoute'
+import { cartRoute } from './cartRoute'
+import { orderRoute } from './orderRoute'
 
 const Router = express.Router()
 
@@ -11,5 +13,7 @@ Router.get('/status', (req, res) => {
 
 /* Product APIs */
 Router.use('/products', productRoute)
+// Router.use('/cart', cartRoute)
+// Router.use('/orders', orderRoute)
 
 export const APIs_V1 = Router

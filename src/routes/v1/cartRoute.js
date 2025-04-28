@@ -1,6 +1,8 @@
 import express from 'express'
 import { cartValidation } from '~/validations/cartValidation'
 import { cartController } from '~/controllers/cartController'
+import { orderController } from '~/controllers/orderController'
+import { orderValidation } from '~/validations/orderValidation'
 
 const Router = express.Router()
 

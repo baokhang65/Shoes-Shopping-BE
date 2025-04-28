@@ -10,3 +10,24 @@ export const slugify = (val) => {
     .replace(/\s+/g, '-') // replace spaces with hyphens
     .replace(/-+/g, '-') // remove consecutive hyphens
 }
+
+export const formatPrice = (price, currency = 'USD') => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency
+  }).format(price)
+}
+
+export const formatDate = (date) => {
+  const d = new Date(date)
+  return d.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+export const truncateText = (text, length = 100) => {
+  if (!text || text.length <= length) return text
+  return text.slice(0, length) + '...'
+}

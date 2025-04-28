@@ -13,7 +13,7 @@ Router.get('/status', (req, res) => {
 
 /* Product APIs */
 Router.use('/products', productRoute)
-// Router.use('/cart', cartRoute)
+Router.use('/cart', cartRoute)
 // Router.use('/orders', orderRoute)
 
 export const APIs_V1 = Router

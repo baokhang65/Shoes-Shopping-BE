@@ -25,7 +25,7 @@ const getDetails = async (productId) => {
   try {
     const product = await productModel.getDetails(productId)
     return product
-  } catch (error) { 
+  } catch (error) {
     if (error.message === 'Product not found') {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Product not found')
     }
@@ -50,9 +50,9 @@ const getAllProducts = async (query = {}) => {
       }
     }
     const result = await productModel.getAllProducts({
-      page, 
-      limit, 
-      sort: sortOption 
+      page,
+      limit,
+      sort: sortOption
     })
     return result
   } catch (error) { throw error }
@@ -65,13 +65,13 @@ const searchProducts = async (keyword) => {
     }
     // This would need to be implemented in the model
     // For now, returning empty result
-    return { 
-      products: [], 
-      pagination: { 
-        totalCount: 0, 
-        totalPages: 0, 
-        currentPage: 1, 
-        limit: 12 
+    return {
+      products: [],
+      pagination: {
+        totalCount: 0,
+        totalPages: 0,
+        currentPage: 1,
+        limit: 12
       } 
     }
   } catch (error) { throw error }
@@ -108,7 +108,7 @@ const getFeaturedProducts = async () => {
     const result = await productModel.getAllProducts({ 
       page: 1, 
       limit: 8, 
-      sort: { createdAt: -1 } 
+      sort: { createdAt: -1 }
     })
     return result
   } catch (error) { throw error }

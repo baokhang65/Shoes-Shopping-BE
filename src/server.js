@@ -22,9 +22,15 @@ const START_SERVER = () => {
   //Middlewares error handling
   app.use(errorHandlingMiddleware)
 
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    console.log(`Hi ${env.AUTHOR} , server running at http://${ env.APP_HOST }:${ env.APP_PORT }/`)
-  })
+  if (env.BUILD_MODE == 'production' ) {
+    app.listen(process.env.PORT, () => {
+      console.log(`Hi ${env.AUTHOR} , server running at Port:${ process.env.PORT }`)
+    })
+  } else {
+    app.listen(env.LOCAL_APP_PORT, env.LOCAL_APP_HOST, () => {
+      console.log(`Hi ${env.AUTHOR} , server running at http://${ env.APP_HOST }:${ env.APP_PORT }/`)
+    })
+  }
 
   //Clean up before stoping server
   existHook(() => {

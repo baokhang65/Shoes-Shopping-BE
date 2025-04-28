@@ -15,4 +15,7 @@ Router.route('/items')
 Router.route('/clear')
   .delete(cartController.clearCart)
 
+Router.route('/checkout')
+  .post(orderValidation.createOrder, orderController.createOrder)
+
 export const cartRoute = Router

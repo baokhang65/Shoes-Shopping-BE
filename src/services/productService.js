@@ -1,11 +1,34 @@
 /* eslint-disable no-useless-catch */
 import { slugify } from '~/utils/formatters'
 import { productModel } from '~/models/productModel'
+import { userModel } from '~/models/userModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
+import { USER_ROLES } from '~/utils/constants'
 
-const createNew = async (reqBody) => {
+// Helper function to check admin permissions
+const checkAdminPermission = async (userId) => {
+  if (!userId) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Authentication required')
+  }
+
+  const user = await userModel.findOneById(userId)
+  if (!user) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+  }
+
+  if (user.role !== USER_ROLES.ADMIN) {
+    throw new ApiError(StatusCodes.FORBIDDEN, 'Admin permission required')
+  }
+
+  return true
+}
+
+const createNew = async (reqBody, userId) => {
   try {
+    // Check admin permissions
+    await checkAdminPermission(userId)
+
     const newProduct = {
       ...reqBody,
       slug: slugify(reqBody.name),
@@ -29,7 +52,7 @@ const getDetails = async (productId) => {
     if (error.message === 'Product not found') {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Product not found')
     }
-    throw error 
+    throw error
   }
 }
 
@@ -72,7 +95,7 @@ const searchProducts = async (keyword) => {
         totalPages: 0,
         currentPage: 1,
         limit: 12
-      } 
+      }
     }
   } catch (error) { throw error }
 }
@@ -105,17 +128,20 @@ const getFeaturedProducts = async () => {
   try {
     // Currently not implemented in the model
     // Return a basic set of products
-    const result = await productModel.getAllProducts({ 
-      page: 1, 
-      limit: 8, 
+    const result = await productModel.getAllProducts({
+      page: 1,
+      limit: 8,
       sort: { createdAt: -1 }
     })
     return result
   } catch (error) { throw error }
 }
 
-const updateProduct = async (productId, updateData) => {
+const updateProduct = async (productId, updateData, userId) => {
   try {
+    // Check admin permissions
+    await checkAdminPermission(userId)
+
     // If name is being updated, update slug too
     if (updateData.name) {
       updateData.slug = slugify(updateData.name)
@@ -133,8 +159,11 @@ const updateProduct = async (productId, updateData) => {
   } catch (error) { throw error }
 }
 
-const deleteProduct = async (productId) => {
+const deleteProduct = async (productId, userId) => {
   try {
+    // Check admin permissions
+    await checkAdminPermission(userId)
+
     // Using soft delete from the model (sets isActive to false)
     const result = await productModel.deleteProduct(productId)
     if (!result) {
@@ -144,8 +173,11 @@ const deleteProduct = async (productId) => {
   } catch (error) { throw error }
 }
 
-const updateProductStock = async (productId, sizes) => {
+const updateProductStock = async (productId, sizes, userId) => {
   try {
+    // Check admin permissions
+    await checkAdminPermission(userId)
+
     // Find the current product to confirm it exists
     const existingProduct = await productModel.findOneById(productId)
     if (!existingProduct) {
@@ -153,7 +185,7 @@ const updateProductStock = async (productId, sizes) => {
     }
 
     // Update product with new size data
-    const updatedProduct = await productModel.updateProduct(productId, { 
+    const updatedProduct = await productModel.updateProduct(productId, {
       sizes,
       updatedAt: new Date()
     })

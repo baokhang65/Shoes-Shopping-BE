@@ -48,10 +48,32 @@ const clearCart = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const transferGuestCart = async (req, res, next) => {
+  try {
+    const { userId, guestCartItems } = req.body
+
+    if (!userId) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'User ID is required'
+      })
+    }
+
+    if (!guestCartItems || !Array.isArray(guestCartItems)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Guest cart items must be an array'
+      })
+    }
+
+    const userCart = await cartService.transferGuestCart(userId, guestCartItems)
+    res.status(StatusCodes.OK).json(userCart)
+  } catch (error) { next(error) }
+}
+
 export const cartController = {
   getCart,
   addItem,
   updateItem,
   removeItem,
-  clearCart
+  clearCart,
+  transferGuestCart
 }

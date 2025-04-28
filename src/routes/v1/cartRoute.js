@@ -1,8 +1,8 @@
 import express from 'express'
 import { cartValidation } from '~/validations/cartValidation'
 import { cartController } from '~/controllers/cartController'
-import { orderController } from '~/controllers/orderController'
 import { orderValidation } from '~/validations/orderValidation'
+import { orderController } from '~/controllers/orderController'
 
 const Router = express.Router()
 
@@ -16,6 +16,9 @@ Router.route('/items')
 
 Router.route('/clear')
   .delete(cartController.clearCart)
+
+Router.route('/transfer')
+  .post(cartController.transferGuestCart)
 
 Router.route('/checkout')
   .post(orderValidation.createOrder, orderController.createOrder)

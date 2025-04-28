@@ -1,4 +1,5 @@
 import Joi from 'joi'
+import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
@@ -12,6 +13,9 @@ const CART_COLLECTION_SCHEMA = Joi.object({
       productId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
       size: Joi.string().trim().required(),
       quantity: Joi.number().integer().min(1).default(1),
+      price: Joi.number().precision(2).positive().required(), // Added price field
+      productName: Joi.string().required(), // Added product name for better cart display
+      productImage: Joi.string().allow(null), // Added image URL
       createdAt: Joi.date().default(Date.now),
       updatedAt: Joi.date().allow(null)
     }).strict()
@@ -33,7 +37,9 @@ const createNew = async (data) => {
 
 const findOneByUserId = async (userId) => {
   try {
-    const result = await GET_DB().collection(CART_COLLECTION_NAME).findOne({ userId })
+    // Convert userId to string if it's an ObjectId
+    const userIdStr = userId instanceof ObjectId ? userId.toString() : userId
+    const result = await GET_DB().collection(CART_COLLECTION_NAME).findOne({ userId: userIdStr })
     return result
   } catch (error) { throw new Error(error) }
 }
@@ -52,10 +58,12 @@ const addItemToCart = async (userId, productData) => {
       })
       cart = await findOneByUserId(userId)
     }
+
     // Check if this product with the same size already exists in cart
     const existingItemIndex = cart.items.findIndex(
       item => item.productId === productData.productId && item.size === productData.size
     )
+
     if (existingItemIndex > -1) {
       // Update quantity if item already exists
       await GET_DB().collection(CART_COLLECTION_NAME).updateOne(
@@ -122,7 +130,7 @@ const clearCart = async (userId) => {
     // Clear all items from cart
     await GET_DB().collection(CART_COLLECTION_NAME).updateOne(
       { userId },
-      { 
+      {
         $set: {
           items: [],
           updatedAt: new Date()
@@ -130,6 +138,54 @@ const clearCart = async (userId) => {
       }
     )
     // Return updated cart
+    return await findOneByUserId(userId)
+  } catch (error) { throw new Error(error) }
+}
+
+// Calculate cart total
+const calculateCartTotal = (cart) => {
+  if (!cart || !cart.items || cart.items.length === 0) {
+    return 0
+  }
+
+  return cart.items.reduce((total, item) => {
+    return total + (item.price * item.quantity)
+  }, 0)
+}
+
+// Create temporary cart for guest users
+const createGuestCart = () => {
+  return {
+    items: [],
+    createdAt: new Date(),
+    updatedAt: null
+  }
+}
+
+// Transfer guest cart to user cart after login/registration
+const transferGuestCart = async (userId, guestCartItems) => {
+  try {
+    if (!guestCartItems || guestCartItems.length === 0) {
+      return await findOneByUserId(userId)
+    }
+
+    // Get or create user cart
+    let cart = await findOneByUserId(userId)
+    if (!cart) {
+      await createNew({
+        userId,
+        items: [],
+        createdAt: new Date(),
+        updatedAt: null
+      })
+      cart = await findOneByUserId(userId)
+    }
+
+    // Add each guest cart item to the user's cart
+    for (const item of guestCartItems) {
+      await addItemToCart(userId, item)
+    }
+
     return await findOneByUserId(userId)
   } catch (error) { throw new Error(error) }
 }
@@ -142,5 +198,8 @@ export const cartModel = {
   addItemToCart,
   updateCartItemQuantity,
   removeCartItem,
-  clearCart
+  clearCart,
+  calculateCartTotal,
+  createGuestCart,
+  transferGuestCart
 }

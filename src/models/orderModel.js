@@ -2,8 +2,9 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { cartModel } from './cartModel'
+import { userModel } from './userModel'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
-import { ORDER_STATUS } from '~/utils/constants'
+import { ORDER_STATUS, USER_ROLES } from '~/utils/constants'
 
 // Define Collection (name & schema)
 const ORDER_COLLECTION_NAME = 'orders'
@@ -37,6 +38,12 @@ const createNew = async (data) => {
     // Clear the user's cart after creating an order
     if (result.acknowledged) {
       await cartModel.clearCart(validData.userId)
+
+      // Upgrade user role from GUEST to CUSTOMER if needed
+      const user = await userModel.findOneById(validData.userId)
+      if (user && user.role === USER_ROLES.GUEST) {
+        await userModel.updateRole(user._id.toString(), USER_ROLES.CUSTOMER)
+      }
     }
     return result
   } catch (error) { throw new Error(error) }
@@ -67,8 +74,8 @@ const updateOrderStatus = async (id, status) => {
     }
     const result = await GET_DB().collection(ORDER_COLLECTION_NAME).updateOne(
       { _id: new ObjectId(String(id)) },
-      { 
-        $set: { 
+      {
+        $set: {
           status,
           updatedAt: new Date()
         }

@@ -1,5 +1,4 @@
 import express from 'express'
-import { StatusCodes } from 'http-status-codes'
 import { productValidation } from '~/validations/productValidation'
 import { productController } from '~/controllers/productController'
 

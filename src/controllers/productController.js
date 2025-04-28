@@ -3,8 +3,11 @@ import { productService } from '~/services/productService'
 
 const createNew = async (req, res, next) => {
   try {
+    // Get userId from query or body to check admin permissions
+    const userId = req.query.userId || req.body.userId
+
     // Service layer
-    const createProduct = await productService.createNew(req.body)
+    const createProduct = await productService.createNew(req.body, userId)
     res.status(StatusCodes.CREATED).json(createProduct)
   } catch (error) { next(error) }
 }
@@ -51,7 +54,9 @@ const getFeaturedProducts = async (req, res, next) => {
 const updateProduct = async (req, res, next) => {
   try {
     const productId = req.params.id
-    const updatedProduct = await productService.updateProduct(productId, req.body)
+    const userId = req.query.userId || req.body.userId
+
+    const updatedProduct = await productService.updateProduct(productId, req.body, userId)
     res.status(StatusCodes.OK).json(updatedProduct)
   } catch (error) { next(error) }
 }
@@ -59,7 +64,9 @@ const updateProduct = async (req, res, next) => {
 const deleteProduct = async (req, res, next) => {
   try {
     const productId = req.params.id
-    const result = await productService.deleteProduct(productId)
+    const userId = req.query.userId || req.body.userId
+
+    const result = await productService.deleteProduct(productId, userId)
     res.status(StatusCodes.OK).json(result)
   } catch (error) { next(error) }
 }
@@ -67,8 +74,10 @@ const deleteProduct = async (req, res, next) => {
 const updateProductStock = async (req, res, next) => {
   try {
     const productId = req.params.id
+    const userId = req.query.userId || req.body.userId
     const { sizes } = req.body
-    const updatedProduct = await productService.updateProductStock(productId, sizes)
+
+    const updatedProduct = await productService.updateProductStock(productId, sizes, userId)
     res.status(StatusCodes.OK).json(updatedProduct)
   } catch (error) { next(error) }
 }

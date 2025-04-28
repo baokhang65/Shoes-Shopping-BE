@@ -1,5 +1,5 @@
 export const WHITELIST_DOMAINS = [
-  'http://localhost:5173'
+  // 'http://localhost:5173'
   // deloy website
 ]
 
@@ -15,4 +15,10 @@ export const ORDER_STATUS = {
   SHIPPED: 'shipped',
   DELIVERED: 'delivered',
   CANCELLED: 'cancelled'
+}
+
+export const USER_ROLES = {
+  GUEST: 'guest',
+  CUSTOMER: 'customer',
+  ADMIN: 'admin'
 }

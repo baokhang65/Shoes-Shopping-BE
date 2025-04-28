@@ -9,8 +9,6 @@ export const corsOptions = {
       return callback(null, true)
     }
 
-    
-
     // check origin is domain acceptable or not
     if (WHITELIST_DOMAINS.includes(origin)) {
       return callback(null, true)

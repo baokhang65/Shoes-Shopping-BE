@@ -1,3 +1,5 @@
+import { pick } from 'lodash'
+
 // Simple method to Convert a String to Slug
 export const slugify = (val) => {
   if (!val) return ''
@@ -30,4 +32,9 @@ export const formatDate = (date) => {
 export const truncateText = (text, length = 100) => {
   if (!text || text.length <= length) return text
   return text.slice(0, length) + '...'
+}
+
+export const pickUser = (user) => {
+  if (!user) return {}
+  return pick(user, ['_id', 'email', 'userName', 'displayName', 'avatar', 'role', 'isActive', 'createdAt', 'updatedAt'])
 }

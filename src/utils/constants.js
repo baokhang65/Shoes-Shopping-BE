@@ -1,3 +1,5 @@
+import { env } from '~/config/environment'
+
 export const WHITELIST_DOMAINS = [
   // 'http://localhost:5173'
   // deloy website
@@ -22,3 +24,5 @@ export const USER_ROLES = {
   CUSTOMER: 'customer',
   ADMIN: 'admin'
 }
+
+export const WEBSITE_DOMAIN = (env.BUILD_MODE === 'production') ? env.WEBSITE_DOMAIN_PRODUCTION : env.WEBSITE_DOMAIN_DEVELOPMENT

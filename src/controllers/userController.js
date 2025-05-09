@@ -8,6 +8,13 @@ const createNew = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const verifyAccount = async (req, res, next) => {
+  try {
+    const result = await userService.verifyAccount(req.body)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) { next(error) }
+}
+
 const login = async (req, res, next) => {
   try {
     const userData = await userService.login(req.body)
@@ -71,6 +78,7 @@ const updateUserRole = async (req, res, next) => {
 export const userController = {
   createNew,
   login,
+  verifyAccount,
   getProfile,
   updateProfile,
   getAllUsers,

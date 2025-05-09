@@ -100,13 +100,13 @@ const login = async (reqBody) => {
       env.ACCESS_TOKEN_LIFE
     )
 
-    const refeshToken = await JwtProvider.generateToken(
+    const refreshToken = await JwtProvider.generateToken(
       userInfo,
       env.REFRESH_TOKEN_SECRET_SIGNATURE,
       env.REFRESH_TOKEN_LIFE
     )
 
-    return{ accessToken, refeshToken, ...pickUser(user) }
+    return { accessToken, refreshToken, ...pickUser(user) }
   } catch (error) { throw error }
 }
 

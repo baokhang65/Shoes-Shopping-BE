@@ -3,24 +3,25 @@ import { cartValidation } from '~/validations/cartValidation'
 import { cartController } from '~/controllers/cartController'
 import { orderValidation } from '~/validations/orderValidation'
 import { orderController } from '~/controllers/orderController'
+import { authMiddleware } from '~/middlewares/authMiddleware'
 
 const Router = express.Router()
 
 Router.route('/')
-  .get(cartController.getCart)
-  .post(cartValidation.addItem, cartController.addItem)
+  .get(authMiddleware.isAuthorized, cartController.getCart)
+  .post(authMiddleware.isAuthorized, cartValidation.addItem, cartController.addItem)
 
 Router.route('/items')
-  .put(cartValidation.updateItem, cartController.updateItem)
-  .delete(cartValidation.removeItem, cartController.removeItem)
+  .put(authMiddleware.isAuthorized, cartValidation.updateItem, cartController.updateItem)
+  .delete(authMiddleware.isAuthorized, cartValidation.removeItem, cartController.removeItem)
 
 Router.route('/clear')
-  .delete(cartController.clearCart)
+  .delete(authMiddleware.isAuthorized, cartController.clearCart)
 
 Router.route('/transfer')
-  .post(cartController.transferGuestCart)
+  .post(authMiddleware.isAuthorized, cartController.transferGuestCart)
 
 Router.route('/checkout')
-  .post(orderValidation.createOrder, orderController.createOrder)
+  .post(authMiddleware.isAuthorized, orderValidation.createOrder, orderController.createOrder)
 
 export const cartRoute = Router

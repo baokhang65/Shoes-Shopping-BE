@@ -1,25 +1,26 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
-import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE, EMAIL_RULE, EMAIL_RULE_MESSAGE } from '~/utils/validators'
 import { USER_ROLES } from '~/utils/constants'
 
 // Define Collection (name & schema)
 const USER_COLLECTION_NAME = 'users'
 
 const USER_COLLECTION_SCHEMA = Joi.object({
-  email: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE), // unique
+  email: Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE), // Use EMAIL_RULE instead of OBJECT_ID_RULE
   password: Joi.string().required(),
   username: Joi.string().required().trim().strict(),
   displayName: Joi.string().required().trim().strict(),
   avatar: Joi.string().default(null),
   role: Joi.string().valid(USER_ROLES.GUEST, USER_ROLES.CUSTOMER, USER_ROLES.ADMIN).default(USER_ROLES.CUSTOMER),
-  isActive: Joi.boolean().default(true),
+  isActive: Joi.boolean().default(false),
   verifyToken: Joi.string(),
   createdAt: Joi.date().default(Date.now),
   updatedAt: Joi.date().allow(null)
 }).strict()
 
+// Rest of the file remains the same
 const validateBeforeCreate = async (data) => {
   return await USER_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }

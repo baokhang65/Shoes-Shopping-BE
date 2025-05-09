@@ -17,7 +17,9 @@ const getUserOrders = async (req, res, next) => {
 const getOrderDetails = async (req, res, next) => {
   try {
     const orderId = req.params.id
-    const order = await orderService.getOrderDetails(orderId)
+    const userId = req.query.userId // Optional - to check permissions
+
+    const order = await orderService.getOrderDetails(orderId, userId)
     res.status(StatusCodes.OK).json(order)
   } catch (error) { next(error) }
 }
@@ -34,7 +36,9 @@ const updateOrderStatus = async (req, res, next) => {
   try {
     const orderId = req.params.id
     const { status } = req.body
-    const updatedOrder = await orderService.updateOrderStatus(orderId, status)
+    const userId = req.query.userId // Optional - to check permissions
+
+    const updatedOrder = await orderService.updateOrderStatus(orderId, status, userId)
     res.status(StatusCodes.OK).json(updatedOrder)
   } catch (error) { next(error) }
 }
@@ -47,13 +51,16 @@ const getAllOrders = async (req, res, next) => {
     const status = req.query.status || null
     const sortBy = req.query.sortBy || 'createdAt'
     const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1
+    const userId = req.query.userId // To check admin permissions
+
     const result = await orderService.getAllOrders({
       page,
       limit,
       status,
       sortBy,
       sortOrder
-    })
+    }, userId)
+
     res.status(StatusCodes.OK).json(result)
   } catch (error) { next(error) }
 }

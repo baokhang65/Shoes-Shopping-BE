@@ -2,12 +2,12 @@ import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import { USER_ROLES } from '~/utils/constants'
+import { EMAIL_RULE, EMAIL_RULE_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE } from '~/utils/validators'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().min(8).required(),
-    username: Joi.string().trim().required(),
+    email: Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE).required(),
+    password: Joi.string().min(8).pattern(PASSWORD_RULE).message(PASSWORD_RULE_MESSAGE).required(),
     displayName: Joi.string().trim(),
     role: Joi.string().valid(
       USER_ROLES.GUEST,
@@ -26,10 +26,24 @@ const createNew = async (req, res, next) => {
   }
 }
 
+const verifyAccount = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    email: Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
+    token: Joi.string().required()
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false })
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+  }
+}
+
 const login = async (req, res, next) => {
   const correctCondition = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().required()
+    email: Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
+    password: Joi.string().pattern(PASSWORD_RULE).message(PASSWORD_RULE_MESSAGE).required()
   })
 
   try {
@@ -74,6 +88,7 @@ const updateUserRole = async (req, res, next) => {
 export const userValidation = {
   createNew,
   login,
+  verifyAccount,
   updateProfile,
   updateUserRole
 }

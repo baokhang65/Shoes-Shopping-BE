@@ -12,7 +12,6 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   password: Joi.string().required(),
   username: Joi.string().required().trim().strict(),
   displayName: Joi.string().required().trim().strict(),
-  avatar: Joi.string().default(null),
   role: Joi.string().valid(USER_ROLES.GUEST, USER_ROLES.CUSTOMER, USER_ROLES.ADMIN).default(USER_ROLES.CUSTOMER),
   isActive: Joi.boolean().default(false),
   verifyToken: Joi.string(),
@@ -68,62 +67,62 @@ const update = async (id, updateData) => {
   } catch (error) { throw new Error(error) }
 }
 
-// const updateRole = async (id, role) => {
-//   try {
-//     // Validate role
-//     if (!Object.values(USER_ROLES).includes(role)) {
-//       throw new Error('Invalid user role')
-//     }
+const updateRole = async (id, role) => {
+  try {
+    // Validate role
+    if (!Object.values(USER_ROLES).includes(role)) {
+      throw new Error('Invalid user role')
+    }
 
-//     const result = await GET_DB().collection(USER_COLLECTION_NAME).findOneAndUpdate(
-//       { _id: new ObjectId(String(id)) },
-//       {
-//         $set: {
-//           role,
-//           updatedAt: new Date()
-//         }
-//       },
-//       { returnDocument: 'after' }
-//     )
+    const result = await GET_DB().collection(USER_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(id)) },
+      {
+        $set: {
+          role,
+          updatedAt: new Date()
+        }
+      },
+      { returnDocument: 'after' }
+    )
 
-//     return result
-//   } catch (error) { throw new Error(error) }
-// }
+    return result
+  } catch (error) { throw new Error(error) }
+}
 
-// // Get all users (for admin)
-// const getAllUsers = async ({ page = 1, limit = 10, sortBy = 'createdAt', sortOrder = -1 }) => {
-//   try {
-//     const skip = (page - 1) * limit
-//     // Build sort
-//     const sort = {}
-//     sort[sortBy] = sortOrder
+// Get all users (for admin)
+const getAllUsers = async ({ page = 1, limit = 10, sortBy = 'createdAt', sortOrder = -1 }) => {
+  try {
+    const skip = (page - 1) * limit
+    // Build sort
+    const sort = {}
+    sort[sortBy] = sortOrder
 
-//     const results = await GET_DB().collection(USER_COLLECTION_NAME)
-//       .find({ isActive: true })
-//       .sort(sort)
-//       .skip(skip)
-//       .limit(limit)
-//       .toArray()
+    const results = await GET_DB().collection(USER_COLLECTION_NAME)
+      .find({ isActive: true })
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .toArray()
 
-//     // Get total count for pagination
-//     const totalCount = await GET_DB().collection(USER_COLLECTION_NAME).countDocuments({ isActive: true })
+    // Get total count for pagination
+    const totalCount = await GET_DB().collection(USER_COLLECTION_NAME).countDocuments({ isActive: true })
 
-//     return {
-//       users: results.map(user => {
-//         // Don't return password in user list
-//         delete user.password
-//         delete user.verifyToken
-//         return user
-//       }),
-//       pagination: {
-//         totalCount,
-//         totalPages: Math.ceil(totalCount / limit),
-//         currentPage: page,
-//         limit
-//       }
-//     }
-//   } catch (error) { throw new Error(error) }
-// }
+    return {
+      users: results.map(user => {
+        // Don't return password in user list
+        delete user.password
+        delete user.verifyToken
+        return user
+      }),
+      pagination: {
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        currentPage: page,
+        limit
+      }
+    }
+  } catch (error) { throw new Error(error) }
+}
 
 export const userModel = {
   USER_COLLECTION_NAME,
@@ -132,7 +131,7 @@ export const userModel = {
   createNew,
   findOneByEmail,
   findOneById,
-  update
-  // updateRole,
-  // getAllUsers
+  update,
+  updateRole,
+  getAllUsers
 }

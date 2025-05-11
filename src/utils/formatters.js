@@ -36,5 +36,5 @@ export const truncateText = (text, length = 100) => {
 
 export const pickUser = (user) => {
   if (!user) return {}
-  return pick(user, ['_id', 'email', 'userName', 'displayName', 'avatar', 'role', 'isActive', 'createdAt', 'updatedAt'])
+  return pick(user, ['_id', 'email', 'userName', 'displayName', 'role', 'isActive', 'createdAt', 'updatedAt'])
 }

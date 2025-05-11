@@ -1,14 +1,12 @@
 import express from 'express'
 import { cartValidation } from '~/validations/cartValidation'
 import { cartController } from '~/controllers/cartController'
-import { orderValidation } from '~/validations/orderValidation'
-import { orderController } from '~/controllers/orderController'
 import { authMiddleware } from '~/middlewares/authMiddleware'
 
 const Router = express.Router()
 
 Router.route('/')
-  .get(authMiddleware.isAuthorized, cartController.getCart)
+  .get(cartController.getCart)
   .post(authMiddleware.isAuthorized, cartValidation.addItem, cartController.addItem)
 
 Router.route('/items')
@@ -20,8 +18,5 @@ Router.route('/clear')
 
 Router.route('/transfer')
   .post(authMiddleware.isAuthorized, cartController.transferGuestCart)
-
-Router.route('/checkout')
-  .post(authMiddleware.isAuthorized, orderValidation.createOrder, orderController.createOrder)
 
 export const cartRoute = Router

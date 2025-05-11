@@ -32,20 +32,28 @@ const createNew = async (reqBody) => {
 
     // Create new user in database
     const createdUser = await userModel.createNew(newUser)
-    // eslint-disable-next-line no-unused-vars
     const getNewUser = await userModel.findOneById(createdUser.insertedId)
 
-    // // Email send
-    // const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${createdUser.verifyToken}`
-    // const customSubject = 'Please verify your email before using our services!'
-    // const htmlContent = `
-    //   <h3>Here is your verification link:</h3>
-    //   <h3>${verificationLink}</h3>
-    // `
-    // await BrevoProvider.sendEmail(getNewUser.email, customSubject, htmlContent)
+    // Email send - uncomment nếu đã cấu hình email provider
+    // if (env.BREVO_API_KEY && env.ADMIN_EMAIL_ADDRESS) {
+    //   try {
+    //     const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
+    //     const customSubject = 'Please verify your email before using our services!'
+    //     const htmlContent = `
+    //       <h3>Here is your verification link:</h3>
+    //       <h3>${verificationLink}</h3>
+    //     `
+    //     await BrevoProvider.sendEmail(getNewUser.email, customSubject, htmlContent)
+    //   } catch (emailError) {
+    //     console.error('Failed to send verification email:', emailError.message)
+    //   }
+    // }
 
-    // return pickUser(getNewUser)
-  } catch (error) { throw error }
+    return pickUser(getNewUser)
+  } catch (error) {
+    if (error.name === 'ApiError') throw error
+    throw new Error(`User creation failed: ${error.message}`)
+  }
 }
 
 const verifyAccount = async (reqBody) => {
@@ -64,7 +72,10 @@ const verifyAccount = async (reqBody) => {
 
     return pickUser(updatedUser)
 
-  } catch (error) { throw error }
+  } catch (error) {
+    if (error.name === 'ApiError') throw error
+    throw new Error(`Account verification failed: ${error.message}`)
+  }
 }
 
 const login = async (reqBody) => {
@@ -100,11 +111,18 @@ const login = async (reqBody) => {
     )
 
     return { accessToken, refreshToken, ...pickUser(user) }
-  } catch (error) { throw error }
+  } catch (error) {
+    if (error.name === 'ApiError') throw error
+    throw new Error(`Login failed: ${error.message}`)
+  }
 }
 
 const refreshToken = async (clientRefreshToken) => {
   try {
+    if (!clientRefreshToken) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Refresh token is required')
+    }
+
     const refreshTokenDecoded = await JwtProvider.verifyToken(clientRefreshToken, env.REFRESH_TOKEN_SECRET_SIGNATURE)
 
     const userInfo = {
@@ -119,7 +137,10 @@ const refreshToken = async (clientRefreshToken) => {
     )
 
     return { accessToken }
-  } catch (error) { throw error }
+  } catch (error) {
+    if (error.name === 'ApiError') throw error
+    throw new Error(`Token refresh failed: ${error.message}`)
+  }
 }
 
 const update = async (userId, reqBody) => {
@@ -133,7 +154,7 @@ const update = async (userId, reqBody) => {
     if (reqBody.current_password && reqBody.new_password) {
       // Check current password
       if (!bcrypt.compareSync(reqBody.current_password, existUser.password)) {
-        throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your Email or Password is incorrect!')
+        throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your current password is incorrect!')
       }
       // If current password right then hashed it
       updatedUser = await userModel.update(existUser._id, {
@@ -144,73 +165,67 @@ const update = async (userId, reqBody) => {
       updatedUser = await userModel.update(existUser._id, reqBody)
     }
     return pickUser(updatedUser)
-  } catch (error) { throw error }
+  } catch (error) {
+    if (error.name === 'ApiError') throw error
+    throw new Error(`Profile update failed: ${error.message}`)
+  }
 }
 
-// const getProfile = async (userId) => {
-//   try {
-//     const user = await userModel.findOneById(userId)
-//     if (!user) {
-//       throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
-//     }
+const getProfile = async (userId) => {
+  try {
+    const user = await userModel.findOneById(userId)
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+    }
 
-//     // Remove sensitive information
-//     delete user.password
-//     delete user.verifyToken
+    // Remove sensitive information
+    return pickUser(user)
+  } catch (error) {
+    if (error.name === 'ApiError') throw error
+    throw new Error(`Failed to retrieve user profile: ${error.message}`)
+  }
+}
 
-//     return user
-//   } catch (error) { throw error }
-// }
+const updateUserRole = async (userId, role) => {
+  try {
+    const user = await userModel.findOneById(userId)
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+    }
 
-// const updateProfile = async (userId, updateData) => {
-//   try {
-//     const user = await userModel.findOneById(userId)
-//     if (!user) {
-//       throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
-//     }
+    // Validate role
+    if (!Object.values(USER_ROLES).includes(role)) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid user role')
+    }
 
-//     const updatedUser = await userModel.update(userId, updateData)
-//     if (updatedUser) {
-//       delete updatedUser.password
-//       delete updatedUser.verifyToken
-//     }
+    const updatedUser = await userModel.updateRole(userId, role)
+    if (!updatedUser) {
+      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to update user role')
+    }
 
-//     return updatedUser
-//   } catch (error) { throw error }
-// }
+    return pickUser(updatedUser)
+  } catch (error) {
+    if (error.name === 'ApiError') throw error
+    throw new Error(`Failed to update user role: ${error.message}`)
+  }
+}
 
-// const getAllUsers = async (options) => {
-//   try {
-//     const result = await userModel.getAllUsers(options)
-//     return result
-//   } catch (error) { throw error }
-// }
-
-// const updateUserRole = async (userId, role) => {
-//   try {
-//     const user = await userModel.findOneById(userId)
-//     if (!user) {
-//       throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
-//     }
-
-//     const updatedUser = await userModel.updateRole(userId, role)
-//     if (updatedUser) {
-//       delete updatedUser.password
-//       delete updatedUser.verifyToken
-//     }
-
-//     return updatedUser
-//   } catch (error) { throw error }
-// }
+const getAllUsers = async (options) => {
+  try {
+    const result = await userModel.getAllUsers(options)
+    return result
+  } catch (error) {
+    throw new Error(`Failed to retrieve users: ${error.message}`)
+  }
+}
 
 export const userService = {
   createNew,
   verifyAccount,
   login,
   refreshToken,
-  update
-  // getProfile,
-  // updateProfile,
-  // getAllUsers,
-  // updateUserRole
+  update,
+  getProfile,
+  updateUserRole,
+  getAllUsers
 }

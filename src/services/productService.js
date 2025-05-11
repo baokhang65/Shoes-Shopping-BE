@@ -5,7 +5,7 @@ import { userModel } from '~/models/userModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 import { USER_ROLES } from '~/utils/constants'
-import { CloudinaryProvider } from '~/providers/cloudinaryProvider'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 
 // Helper function to check admin permissions
 const checkAdminPermission = async (userId) => {
@@ -90,19 +90,24 @@ const getAllProducts = async (query = {}) => {
 const searchProducts = async (keyword) => {
   try {
     if (!keyword || keyword.trim() === '') {
-      return { products: [], pagination: { totalCount: 0, totalPages: 0, currentPage: 1, limit: 12 } }
-    }
-    // This would need to be implemented in the model
-    // For now, returning empty result
-    return {
-      products: [],
-      pagination: {
-        totalCount: 0,
-        totalPages: 0,
-        currentPage: 1,
-        limit: 12
+      return {
+        products: [],
+        pagination: {
+          totalCount: 0,
+          totalPages: 0,
+          currentPage: 1,
+          limit: 12
+        }
       }
     }
+    const page = 1
+    const limit = 12
+    const sortOption = { createdAt: -1 }
+    return await productModel.searchProducts(keyword, {
+      page,
+      limit,
+      sort: sortOption
+    })
   } catch (error) { throw error }
 }
 
@@ -126,19 +131,6 @@ const getProductsByBrand = async (brandId, query = {}) => {
       brandId,
       { page, limit, sort: sortOption }
     )
-    return result
-  } catch (error) { throw error }
-}
-
-const getFeaturedProducts = async () => {
-  try {
-    // Currently not implemented in the model
-    // Return a basic set of products
-    const result = await productModel.getAllProducts({
-      page: 1,
-      limit: 8,
-      sort: { createdAt: -1 }
-    })
     return result
   } catch (error) { throw error }
 }
@@ -214,7 +206,6 @@ export const productService = {
   getAllProducts,
   searchProducts,
   getProductsByBrand,
-  getFeaturedProducts,
   updateProduct,
   deleteProduct,
   updateProductStock

@@ -10,7 +10,6 @@ const createNew = async (req, res, next) => {
     description: Joi.string().trim().required(),
     price: Joi.number().precision(2).positive().required(),
     image: Joi.string().trim().uri().allow(null, ''),
-    featured: Joi.boolean().default(false),
     sizes: Joi.array().items(
       Joi.object({
         size: Joi.string().trim().required(),

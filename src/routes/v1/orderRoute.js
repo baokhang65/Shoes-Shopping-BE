@@ -9,11 +9,14 @@ Router.route('/')
   .get(authMiddleware.isAuthorized, orderController.getUserOrders)
   .post(authMiddleware.isAuthorized, orderValidation.createOrder, orderController.createOrder)
 
+Router.route('/checkout')
+  .post(authMiddleware.isAuthorized, orderValidation.createOrder, orderController.createOrder)
+
 Router.route('/all')
-  .get(orderController.getAllOrders)
+  .get(authMiddleware.isAuthorized, orderController.getAllOrders)
 
 Router.route('/:id')
   .get(authMiddleware.isAuthorized, orderController.getOrderDetails)
-  .patch(orderValidation.updateStatus, orderController.updateOrderStatus)
+  .patch(authMiddleware.isAuthorized, orderValidation.updateStatus, orderController.updateOrderStatus)
 
 export const orderRoute = Router

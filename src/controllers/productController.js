@@ -44,13 +44,6 @@ const getProductsByBrand = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
-const getFeaturedProducts = async (req, res, next) => {
-  try {
-    const featuredProducts = await productService.getFeaturedProducts()
-    res.status(StatusCodes.OK).json(featuredProducts)
-  } catch (error) { next(error) }
-}
-
 const updateProduct = async (req, res, next) => {
   try {
     const productId = req.params.id
@@ -89,7 +82,6 @@ export const productController = {
   getAllProducts,
   searchProducts,
   getProductsByBrand,
-  getFeaturedProducts,
   updateProduct,
   deleteProduct,
   updateProductStock

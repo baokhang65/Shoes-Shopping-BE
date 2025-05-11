@@ -7,26 +7,28 @@ import { StatusCodes } from 'http-status-codes'
 
 const getCart = async (userId) => {
   try {
-    // If userId is provided, get their cart
     if (userId) {
-      // Verify user exists
       const user = await userModel.findOneById(userId)
       if (!user) {
         throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
       }
 
+      const invalidItems = await cleanupCart(userId)
+
       const cart = await cartModel.findOneByUserId(userId)
 
       if (cart) {
-        // Calculate cart total
         const cartTotal = cartModel.calculateCartTotal(cart)
-        return { ...cart, cartTotal }
+        return {
+          ...cart,
+          cartTotal,
+          invalidItemsRemoved: invalidItems || []
+        }
       }
 
       return { userId, items: [], cartTotal: 0, createdAt: new Date(), updatedAt: null }
     }
 
-    // For guest users (no userId), return empty cart structure
     return { items: [], cartTotal: 0, createdAt: new Date(), updatedAt: null }
   } catch (error) { throw error }
 }
@@ -83,10 +85,8 @@ const addItem = async (userId, itemData) => {
       productImage: product.image || null
     }
 
-    // Add the item to the cart
     const updatedCart = await cartModel.addItemToCart(userId, enrichedItemData)
 
-    // Calculate cart total
     const cartTotal = cartModel.calculateCartTotal(updatedCart)
 
     return { ...updatedCart, cartTotal }
@@ -99,7 +99,6 @@ const updateItemQuantity = async (userId, productId, size, quantity) => {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'User ID is required to update cart')
     }
 
-    // Verify user exists
     const user = await userModel.findOneById(userId)
     if (!user) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
@@ -109,7 +108,6 @@ const updateItemQuantity = async (userId, productId, size, quantity) => {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Product ID and size are required')
     }
 
-    // If quantity > 0, check stock availability
     if (quantity > 0) {
       const product = await productModel.findOneById(productId)
       if (!product) {
@@ -121,14 +119,25 @@ const updateItemQuantity = async (userId, productId, size, quantity) => {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Size not available for this product')
       }
 
-      if (sizeObj.stock < quantity) {
-        throw new ApiError(StatusCodes.BAD_REQUEST, `Not enough stock. Only ${sizeObj.stock} available.`)
+      const currentCart = await cartModel.findOneByUserId(userId)
+      const currentItem = currentCart?.items?.find(item =>
+        item.productId === productId && item.size === size
+      )
+      const currentQuantity = currentItem ? currentItem.quantity : 0
+
+      if (quantity > currentQuantity) {
+        const additionalQuantity = quantity - currentQuantity
+        if (sizeObj.stock < additionalQuantity) {
+          throw new ApiError(
+            StatusCodes.BAD_REQUEST,
+            `Not enough stock. Only ${sizeObj.stock} additional items available.`
+          )
+        }
       }
     }
 
     const updatedCart = await cartModel.updateCartItemQuantity(userId, productId, size, quantity)
 
-    // Calculate cart total
     const cartTotal = cartModel.calculateCartTotal(updatedCart)
 
     return { ...updatedCart, cartTotal }
@@ -223,11 +232,82 @@ const transferGuestCart = async (userId, guestCartItems) => {
   } catch (error) { throw error }
 }
 
+const validateCartItems = async (cart) => {
+  try {
+    if (!cart || !cart.items || cart.items.length === 0) return { valid: true, invalidItems: [] }
+
+    const invalidItems = []
+
+    for (const item of cart.items) {
+      try {
+        const product = await productModel.findOneById(item.productId)
+        if (!product || !product.isActive) {
+          invalidItems.push({
+            productId: item.productId,
+            size: item.size,
+            reason: 'Product not found or not active'
+          })
+          continue
+        }
+        const sizeObj = product.sizes.find(s => s.size === item.size)
+        if (!sizeObj) {
+          invalidItems.push({
+            productId: item.productId,
+            size: item.size,
+            reason: 'Size not available for this product'
+          })
+          continue
+        }
+        if (sizeObj.stock < item.quantity) {
+          invalidItems.push({
+            productId: item.productId,
+            size: item.size,
+            availableStock: sizeObj.stock,
+            requestedQuantity: item.quantity,
+            reason: `Not enough stock. Only ${sizeObj.stock} available.`
+          })
+        }
+      } catch (err) {
+        invalidItems.push({
+          productId: item.productId,
+          size: item.size,
+          reason: 'Error validating item'
+        })
+      }
+    }
+    return {
+      valid: invalidItems.length === 0,
+      invalidItems
+    }
+  } catch (error) { throw error }
+}
+
+const cleanupCart = async (userId) => {
+  try {
+    if (!userId) return
+
+    const cart = await cartModel.findOneByUserId(userId)
+    if (!cart || !cart.items || cart.items.length === 0) return
+
+    const validation = await validateCartItems(cart)
+    if (validation.valid) return
+
+    // Xóa các mục không hợp lệ khỏi giỏ hàng
+    for (const invalidItem of validation.invalidItems) {
+      await cartModel.removeCartItem(userId, invalidItem.productId, invalidItem.size)
+    }
+
+    return validation.invalidItems
+  } catch (error) { throw error }
+}
+
 export const cartService = {
   getCart,
   addItem,
   updateItemQuantity,
   removeItem,
   clearCart,
-  transferGuestCart
+  transferGuestCart,
+  validateCartItems,
+  cleanupCart
 }

@@ -5,7 +5,6 @@ import { authMiddleware } from '~/middlewares/authMiddleware'
 
 const Router = express.Router()
 
-// Public routes
 Router.route('/register')
   .post(userValidation.createNew, userController.createNew)
 
@@ -21,20 +20,32 @@ Router.route('/logout')
 Router.route('/refresh_token')
   .get(userController.refreshToken)
 
+Router.route('/validate-token')
+  .get(authMiddleware.isAuthorized, (req, res) => {
+    res.status(200).json({
+      valid: true,
+      user: {
+        id: req.jwtDecoded._id,
+        email: req.jwtDecoded.email
+      }
+    })
+  })
+
 Router.route('/update')
   .put(authMiddleware.isAuthorized, userValidation.update, userController.update)
-// // User profile routes
-// Router.route('/profile')
-//   .get(userController.getProfile)
 
-// Router.route('/profile/:id')
-//   .patch(userValidation.updateProfile, userController.updateProfile)
+Router.route('/profile')
+  .get(authMiddleware.isAuthorized, userController.getProfile)
 
-// // Admin routes
-// Router.route('/all')
-//   .get(userController.getAllUsers)
+Router.route('/admin/users')
+  .get(authMiddleware.isAuthorized, authMiddleware.isAdmin, userController.getAllUsers)
 
-// Router.route('/:id/role')
-//   .patch(userValidation.updateUserRole, userController.updateUserRole)
+Router.route('/admin/users/:id/role')
+  .patch(
+    authMiddleware.isAuthorized,
+    authMiddleware.isAdmin,
+    userValidation.updateUserRole,
+    userController.updateUserRole
+  )
 
 export const userRoute = Router

@@ -123,6 +123,53 @@ const getProductsByPriceSort = async (sortDirection, { page = 1, limit = 12 }) =
   } catch (error) { throw new Error(error) }
 }
 
+const searchProducts = async (keyword, { page = 1, limit = 12, sort = { createdAt: -1 } }) => {
+  try {
+    if (!keyword || keyword.trim() === '') {
+      return {
+        products: [],
+        pagination: {
+          totalCount: 0,
+          totalPages: 0,
+          currentPage: page,
+          limit
+        }
+      }
+    }
+
+    const skip = (page - 1) * limit
+    const searchPattern = new RegExp(keyword.trim(), 'i')
+    const query = {
+      $and: [
+        { isActive: true },
+        {
+          $or: [
+            { name: searchPattern },
+            { description: searchPattern },
+            { brand: searchPattern }
+          ]
+        }
+      ]
+    }
+    const results = await GET_DB().collection(PRODUCT_COLLECTION_NAME)
+      .find(query)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .toArray()
+    const totalCount = await GET_DB().collection(PRODUCT_COLLECTION_NAME).countDocuments(query)
+    return {
+      products: results,
+      pagination: {
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        currentPage: page,
+        limit
+      }
+    }
+  } catch (error) { throw new Error(error) }
+}
+
 const updateProduct = async (id, updateData) => {
   try {
     delete updateData._id
@@ -181,6 +228,7 @@ export const productModel = {
   getAllProducts,
   getProductsByBrand,
   getProductsByPriceSort,
+  searchProducts,
   updateProduct,
   deleteProduct,
   checkStockAvailability

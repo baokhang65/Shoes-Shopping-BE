@@ -3,7 +3,7 @@ import { cartService } from '~/services/cartService'
 
 const getCart = async (req, res, next) => {
   try {
-    const userId = req.query.userId || null // Allow guest users (null userId)
+    const userId = req.jwtDecoded?._id || req.query.userId || null
     const cart = await cartService.getCart(userId)
     res.status(StatusCodes.OK).json(cart)
   } catch (error) { next(error) }
@@ -11,7 +11,7 @@ const getCart = async (req, res, next) => {
 
 const addItem = async (req, res, next) => {
   try {
-    const userId = req.body.userId || null // Allow guest users
+    const userId = req.jwtDecoded?._id || req.body.userId || null
     const item = {
       productId: req.body.productId,
       size: req.body.size,
@@ -24,7 +24,7 @@ const addItem = async (req, res, next) => {
 
 const updateItem = async (req, res, next) => {
   try {
-    const userId = req.body.userId || null
+    const userId = req.jwtDecoded?._id || req.body.userId || null
     const { productId, size, quantity } = req.body
     const updatedCart = await cartService.updateItemQuantity(userId, productId, size, quantity)
     res.status(StatusCodes.OK).json(updatedCart)
@@ -33,7 +33,7 @@ const updateItem = async (req, res, next) => {
 
 const removeItem = async (req, res, next) => {
   try {
-    const userId = req.body.userId || null
+    const userId = req.jwtDecoded?._id || req.body.userId || null
     const { productId, size } = req.body
     const updatedCart = await cartService.removeItem(userId, productId, size)
     res.status(StatusCodes.OK).json(updatedCart)
@@ -42,7 +42,7 @@ const removeItem = async (req, res, next) => {
 
 const clearCart = async (req, res, next) => {
   try {
-    const userId = req.query.userId || null
+    const userId = req.jwtDecoded?._id || req.query.userId || null
     const emptyCart = await cartService.clearCart(userId)
     res.status(StatusCodes.OK).json(emptyCart)
   } catch (error) { next(error) }
@@ -50,7 +50,8 @@ const clearCart = async (req, res, next) => {
 
 const transferGuestCart = async (req, res, next) => {
   try {
-    const { userId, guestCartItems } = req.body
+    const userId = req.jwtDecoded?._id || req.body.userId
+    const { guestCartItems } = req.body
 
     if (!userId) {
       return res.status(StatusCodes.BAD_REQUEST).json({

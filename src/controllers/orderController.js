@@ -3,7 +3,7 @@ import { orderService } from '~/services/orderService'
 
 const getUserOrders = async (req, res, next) => {
   try {
-    const userId = req.query.userId
+    const userId = req.jwtDecoded?._id || req.query.userId
     if (!userId) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: 'User ID is required'
@@ -17,7 +17,7 @@ const getUserOrders = async (req, res, next) => {
 const getOrderDetails = async (req, res, next) => {
   try {
     const orderId = req.params.id
-    const userId = req.query.userId // Optional - to check permissions
+    const userId = req.jwtDecoded?._id || req.query.userId
 
     const order = await orderService.getOrderDetails(orderId, userId)
     res.status(StatusCodes.OK).json(order)
@@ -26,7 +26,21 @@ const getOrderDetails = async (req, res, next) => {
 
 const createOrder = async (req, res, next) => {
   try {
-    const { userId, shippingAddress } = req.body
+    const userId = req.jwtDecoded?._id || req.body.userId
+    const { shippingAddress } = req.body
+
+    if (!userId) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'User ID is required'
+      })
+    }
+
+    if (!shippingAddress) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Shipping address is required'
+      })
+    }
+
     const newOrder = await orderService.createOrderFromCart(userId, { shippingAddress })
     res.status(StatusCodes.CREATED).json(newOrder)
   } catch (error) { next(error) }
@@ -36,7 +50,7 @@ const updateOrderStatus = async (req, res, next) => {
   try {
     const orderId = req.params.id
     const { status } = req.body
-    const userId = req.query.userId // Optional - to check permissions
+    const userId = req.jwtDecoded?._id || req.query.userId
 
     const updatedOrder = await orderService.updateOrderStatus(orderId, status, userId)
     res.status(StatusCodes.OK).json(updatedOrder)
@@ -45,13 +59,12 @@ const updateOrderStatus = async (req, res, next) => {
 
 const getAllOrders = async (req, res, next) => {
   try {
-    // Extract query parameters for pagination, filtering, and sorting
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
     const status = req.query.status || null
     const sortBy = req.query.sortBy || 'createdAt'
     const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1
-    const userId = req.query.userId // To check admin permissions
+    const userId = req.jwtDecoded?._id || req.query.userId
 
     const result = await orderService.getAllOrders({
       page,

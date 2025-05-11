@@ -9,6 +9,7 @@ const createNew = async (req, res, next) => {
     brand: Joi.string().valid(PRODUCT_BRANDS.NIKE, PRODUCT_BRANDS.ADIDAS, PRODUCT_BRANDS.VANS).required(),
     description: Joi.string().trim().required(),
     price: Joi.number().precision(2).positive().required(),
+    image: Joi.string().trim().uri().allow(null, ''),
     featured: Joi.boolean().default(false),
     sizes: Joi.array().items(
       Joi.object({

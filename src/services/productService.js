@@ -5,6 +5,7 @@ import { userModel } from '~/models/userModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 import { USER_ROLES } from '~/utils/constants'
+import { CloudinaryProvider } from '~/providers/cloudinaryProvider'
 
 // Helper function to check admin permissions
 const checkAdminPermission = async (userId) => {
@@ -24,7 +25,7 @@ const checkAdminPermission = async (userId) => {
   return true
 }
 
-const createNew = async (reqBody, userId) => {
+const createNew = async (reqBody, userId, productImgFile) => {
   try {
     // Check admin permissions
     await checkAdminPermission(userId)
@@ -35,6 +36,11 @@ const createNew = async (reqBody, userId) => {
       isActive: true,
       createdAt: new Date(),
       updatedAt: null
+    }
+
+    if (productImgFile) {
+      const uploadResult = await CloudinaryProvider.streamUpload(productImgFile.buffer, 'products')
+      newProduct.image = uploadResult.secure_url
     }
 
     const createProduct = await productModel.createNew(newProduct)
@@ -137,7 +143,7 @@ const getFeaturedProducts = async () => {
   } catch (error) { throw error }
 }
 
-const updateProduct = async (productId, updateData, userId) => {
+const updateProduct = async (productId, updateData, userId, productImgFile) => {
   try {
     // Check admin permissions
     await checkAdminPermission(userId)
@@ -148,6 +154,15 @@ const updateProduct = async (productId, updateData, userId) => {
     }
     // Delete unnecessary fields if they exist
     delete updateData._id
+
+    if (productImgFile) {
+      const result = await CloudinaryProvider.streamUpload(
+        productImgFile.buffer,
+        'products'
+      )
+      updateData.image = result.secure_url
+    }
+
     // Set update timestamp
     updateData.updatedAt = new Date()
 

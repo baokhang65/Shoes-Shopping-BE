@@ -1,12 +1,13 @@
 import express from 'express'
 import { productValidation } from '~/validations/productValidation'
 import { productController } from '~/controllers/productController'
+import { multerUploadMiddleware } from '~/middlewares/multerUploadMiddleware'
 
 const Router = express.Router()
 
 Router.route('/')
   .get(productController.getAllProducts)
-  .post(productValidation.createNew, productController.createNew)
+  .post(multerUploadMiddleware.upload.single('image'), productValidation.createNew, productController.createNew)
 
 Router.route('/search')
   .get(productController.searchProducts)

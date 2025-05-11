@@ -5,9 +5,9 @@ const createNew = async (req, res, next) => {
   try {
     // Get userId from query or body to check admin permissions
     const userId = req.query.userId || req.body.userId
-
+    const productImgFile = req.file
     // Service layer
-    const createProduct = await productService.createNew(req.body, userId)
+    const createProduct = await productService.createNew(req.body, userId, productImgFile)
     res.status(StatusCodes.CREATED).json(createProduct)
   } catch (error) { next(error) }
 }
@@ -55,8 +55,9 @@ const updateProduct = async (req, res, next) => {
   try {
     const productId = req.params.id
     const userId = req.query.userId || req.body.userId
+    const productImgFile = req.file
 
-    const updatedProduct = await productService.updateProduct(productId, req.body, userId)
+    const updatedProduct = await productService.updateProduct(productId, req.body, userId, productImgFile)
     res.status(StatusCodes.OK).json(updatedProduct)
   } catch (error) { next(error) }
 }

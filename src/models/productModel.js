@@ -12,7 +12,7 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   brand: Joi.string().valid(PRODUCT_BRANDS.NIKE, PRODUCT_BRANDS.ADIDAS, PRODUCT_BRANDS.VANS).required(),
   description: Joi.string().trim().required(),
   price: Joi.number().precision(2).positive().required(),
-  image: Joi.string().trim(),
+  image: Joi.string().trim().uri().allow(null, ''),
   sizes: Joi.array().items(
     Joi.object({
       size: Joi.string().trim().required(),
@@ -84,9 +84,9 @@ const getProductsByBrand = async (brand, { page = 1, limit = 12, sort = { create
       .skip(skip)
       .limit(limit)
       .toArray()
-    const totalCount = await GET_DB().collection(PRODUCT_COLLECTION_NAME).countDocuments({ 
-      brand, 
-      isActive: true 
+    const totalCount = await GET_DB().collection(PRODUCT_COLLECTION_NAME).countDocuments({
+      brand,
+      isActive: true
     })
     return {
       products: results,
@@ -139,8 +139,8 @@ const deleteProduct = async (id) => {
   try {
     const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(String(id)) },
-      { 
-        $set: { 
+      {
+        $set: {
           isActive: false,
           updatedAt: new Date()
         }
@@ -162,10 +162,10 @@ const checkStockAvailability = async (productId, size, quantity) => {
       return { available: false, message: 'Size not available' }
     }
     if (sizeObj.stock < quantity) {
-      return { 
-        available: false, 
+      return {
+        available: false,
         message: `Not enough stock. Only ${sizeObj.stock} available.`,
-        availableStock: sizeObj.stock 
+        availableStock: sizeObj.stock
       }
     }
     return { available: true }

@@ -23,35 +23,28 @@ const createNew = async (reqBody) => {
     const nameFromEmail = reqBody.email.split('@')[0]
     const newUser = {
       email: reqBody.email,
-      password: await bcrypt.hash(reqBody.password, 10), // Salt rounds = 10
+      password: bcrypt.hashSync(reqBody.password, 8), // Salt rounds = 8
       username: reqBody.username || nameFromEmail,
       displayName: reqBody.displayName || nameFromEmail,
       role: reqBody.role || USER_ROLES.CUSTOMER,
-      verifyToken: uuidv4(),
-      createdAt: new Date(),
-      updatedAt: null
+      verifyToken: uuidv4()
     }
 
     // Create new user in database
-    const result = await userModel.createNew(newUser)
+    const createdUser = await userModel.createNew(newUser)
+    // eslint-disable-next-line no-unused-vars
+    const getNewUser = await userModel.findOneById(createdUser.insertedId)
 
-    // Get the created user but remove sensitive information
-    const createdUser = await userModel.findOneById(result.insertedId)
-    if (createdUser) {
-      delete createdUser.password
-      delete createdUser.verifyToken
-    }
-
-    // Email send
-    // const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${result.email}&token=${result.verifyToken}`
+    // // Email send
+    // const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${createdUser.verifyToken}`
     // const customSubject = 'Please verify your email before using our services!'
     // const htmlContent = `
     //   <h3>Here is your verification link:</h3>
     //   <h3>${verificationLink}</h3>
     // `
-    // await BrevoProvider.sendEmail(result.email, customSubject, htmlContent)
+    // await BrevoProvider.sendEmail(getNewUser.email, customSubject, htmlContent)
 
-    return pickUser(createdUser)
+    // return pickUser(getNewUser)
   } catch (error) { throw error }
 }
 
@@ -79,17 +72,17 @@ const login = async (reqBody) => {
     // Find user by email
     const user = await userModel.findOneByEmail(reqBody.email)
     if (!user) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid credentials')
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Account not found!')
     }
 
     // Check if account is active
     if (!user.isActive) {
-      throw new ApiError(StatusCodes.FORBIDDEN, 'Account is deactivated')
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your account is not active!')
     }
 
     // Verify password
     if (!bcrypt.compareSync(reqBody.password, user.password)) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid credentials')
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your Email or Password is incorrect!')
     }
 
     const userInfo = { _id: user._id, email: user.email }
@@ -129,69 +122,95 @@ const refreshToken = async (clientRefreshToken) => {
   } catch (error) { throw error }
 }
 
-const getProfile = async (userId) => {
+const update = async (userId, reqBody) => {
   try {
-    const user = await userModel.findOneById(userId)
-    if (!user) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+    const existUser = await userModel.findOneById(userId)
+    if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Account not found!')
+    if (!existUser.isActive) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your account is not active!')
+
+    let updatedUser = {}
+    // Case 1: change password
+    if (reqBody.current_password && reqBody.new_password) {
+      // Check current password
+      if (!bcrypt.compareSync(reqBody.current_password, existUser.password)) {
+        throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your Email or Password is incorrect!')
+      }
+      // If current password right then hashed it
+      updatedUser = await userModel.update(existUser._id, {
+        password: bcrypt.hashSync(reqBody.new_password, 8)
+      })
+    } else {
+      // Case 2: update profile information
+      updatedUser = await userModel.update(existUser._id, reqBody)
     }
-
-    // Remove sensitive information
-    delete user.password
-    delete user.verifyToken
-
-    return user
+    return pickUser(updatedUser)
   } catch (error) { throw error }
 }
 
-const updateProfile = async (userId, updateData) => {
-  try {
-    const user = await userModel.findOneById(userId)
-    if (!user) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
-    }
+// const getProfile = async (userId) => {
+//   try {
+//     const user = await userModel.findOneById(userId)
+//     if (!user) {
+//       throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+//     }
 
-    const updatedUser = await userModel.update(userId, updateData)
-    if (updatedUser) {
-      delete updatedUser.password
-      delete updatedUser.verifyToken
-    }
+//     // Remove sensitive information
+//     delete user.password
+//     delete user.verifyToken
 
-    return updatedUser
-  } catch (error) { throw error }
-}
+//     return user
+//   } catch (error) { throw error }
+// }
 
-const getAllUsers = async (options) => {
-  try {
-    const result = await userModel.getAllUsers(options)
-    return result
-  } catch (error) { throw error }
-}
+// const updateProfile = async (userId, updateData) => {
+//   try {
+//     const user = await userModel.findOneById(userId)
+//     if (!user) {
+//       throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+//     }
 
-const updateUserRole = async (userId, role) => {
-  try {
-    const user = await userModel.findOneById(userId)
-    if (!user) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
-    }
+//     const updatedUser = await userModel.update(userId, updateData)
+//     if (updatedUser) {
+//       delete updatedUser.password
+//       delete updatedUser.verifyToken
+//     }
 
-    const updatedUser = await userModel.updateRole(userId, role)
-    if (updatedUser) {
-      delete updatedUser.password
-      delete updatedUser.verifyToken
-    }
+//     return updatedUser
+//   } catch (error) { throw error }
+// }
 
-    return updatedUser
-  } catch (error) { throw error }
-}
+// const getAllUsers = async (options) => {
+//   try {
+//     const result = await userModel.getAllUsers(options)
+//     return result
+//   } catch (error) { throw error }
+// }
+
+// const updateUserRole = async (userId, role) => {
+//   try {
+//     const user = await userModel.findOneById(userId)
+//     if (!user) {
+//       throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+//     }
+
+//     const updatedUser = await userModel.updateRole(userId, role)
+//     if (updatedUser) {
+//       delete updatedUser.password
+//       delete updatedUser.verifyToken
+//     }
+
+//     return updatedUser
+//   } catch (error) { throw error }
+// }
 
 export const userService = {
   createNew,
   verifyAccount,
   login,
   refreshToken,
-  getProfile,
-  updateProfile,
-  getAllUsers,
-  updateUserRole
+  update
+  // getProfile,
+  // updateProfile,
+  // getAllUsers,
+  // updateUserRole
 }

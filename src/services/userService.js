@@ -28,7 +28,7 @@ const createNew = async (reqBody) => {
       displayName: reqBody.displayName || nameFromEmail,
       role: reqBody.role || USER_ROLES.CUSTOMER,
       verifyToken: null,
-      isActive: true,
+      isActive: true
     }
 
     // Create new user in database

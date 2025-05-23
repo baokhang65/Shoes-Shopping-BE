@@ -13,8 +13,8 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   username: Joi.string().required().trim().strict(),
   displayName: Joi.string().required().trim().strict(),
   role: Joi.string().valid(USER_ROLES.GUEST, USER_ROLES.CUSTOMER, USER_ROLES.ADMIN).default(USER_ROLES.CUSTOMER),
-  isActive: Joi.boolean().default(false),
-  verifyToken: Joi.string(),
+  isActive: Joi.boolean().default(true),
+  verifyToken: Joi.string().allow(null),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null)
 }).strict()

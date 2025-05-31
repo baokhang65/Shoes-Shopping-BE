@@ -33,25 +33,25 @@ const populars = ref([
     img: "image/1.png",
     title: "Appel Mac Book Pro",
     price: "$ 93.358.01",
-    bio: "Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
+    bio: " Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
   },
   {
     img: "image/2.png",
     title: "Appel Mac Book Pro",
     price: "$ 93.358.01",
-    bio: "Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
+    bio: " Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
   },
   {
     img: "image/3.png",
     title: "Appel Mac Book Pro",
     price: "$ 93.358.01",
-    bio: "Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
+    bio: " Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
   },
   {
     img: "image/4.png",
     title: "Appel Mac Book Pro",
     price: "$ 93.358.01",
-    bio: "Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
+    bio: " Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
   },
 ]);
 </script>

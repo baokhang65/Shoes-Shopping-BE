@@ -35,7 +35,7 @@
             <Suspense>
               <Popular />
               <template #fallback>
-                <v-progress-circular indeterminate></v-progress-circular>
+                <v-skeleton-loader type="card" class="mx-auto my-12"></v-skeleton-loader>
               </template>
             </Suspense>
           </v-col>
@@ -50,7 +50,7 @@
             <Suspense>
               <Featured />
               <template #fallback>
-                <v-progress-circular indeterminate></v-progress-circular>
+                <v-skeleton-loader type="card" class="mx-auto my-12"></v-skeleton-loader>
               </template>
             </Suspense>
           </v-col>
@@ -58,24 +58,24 @@
             <Suspense>
               <Client />
               <template #fallback>
-                <v-progress-circular indeterminate></v-progress-circular>
+                <v-skeleton-loader type="card" class="mx-auto my-12"></v-skeleton-loader>
               </template>
             </Suspense>
           </v-col>
 
           <v-col cols="12" sm="12" class="mt-n10">
             <v-row>
-              <v-col cols="3" sm="4" v-for="(watch, index) in watches" :key="index">
-                <v-card class="mx-auto my-12 pb-4" :max-width="374" :color="watch.color">
+              <v-col cols="3" sm="4" v-for="(card, index) in cards" :key="index">
+                <v-card class="mx-auto my-12 pb-4" max-width="374" :color="card.color">
                   <v-row>
                     <v-col cols="12" sm="6">
                       <v-card-item class="mt-10">
-                        <v-card-title class="text-center">{{ watch.title }}</v-card-title>
+                        <v-card-title class="text-center">{{ card.title }}</v-card-title>
                       </v-card-item>
 
                       <v-card-text>
                         <div class="text-center">
-                          {{ watch.description }}
+                          {{ card.description }}
                         </div>
                         <div class="text-center mt-4">
                           <v-btn color="black">Buy Now</v-btn>
@@ -83,7 +83,7 @@
                       </v-card-text>
                     </v-col>
                     <v-col cols="12" sm="6">
-                      <v-img height="250" class="mx-4" :src="watch.image"
+                      <v-img height="250" class="mx-4" :src="card.image"
                         lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
                         loading="lazy"></v-img>
                     </v-col>
@@ -111,7 +111,7 @@ const Popular = defineAsyncComponent(() => import("@/components/Popular.vue"));
 const Featured = defineAsyncComponent(() => import("@/components/Featured.vue"));
 const Client = defineAsyncComponent(() => import("@/components/Client.vue"));
 
-const watches = [
+const cards = [
   {
     title: "Smart watch",
     description: "Small plates, salads & sandwiches",
@@ -131,47 +131,39 @@ const watches = [
     color: null
   }
 ];
-</script>
 
-<script>
-export default {
-  data() {
-    return {
-      items: [
-        {
-          src: "7.jpg",
-          title: "Surface Studio",
-          text: "Le lorem ipsum est, en imprimerie, une suite de mots sans signification utilisée à titre provisoire pour calibrer une mise en page, le texte définitif venant remplacer le faux-texte dès ",
-        },
-        {
-          src: "1.jpg",
-          title: "Surface Studio",
-          text: "Le lorem ipsum est, en imprimerie, une suite de mots sans signification utilisée à titre provisoire pour calibrer une mise en page, le texte définitif venant remplacer le faux-texte dès ",
-        },
-        {
-          src: "2.jpg",
-          title: "Surface Studio",
-          text: "Le lorem ipsum est, en imprimerie, une suite de mots sans signification utilisée à titre provisoire pour calibrer une mise en page, le texte définitif venant remplacer le faux-texte dès ",
-        },
-        {
-          src: "3.jpg",
-          title: "Surface Studio",
-          text: "Le lorem ipsum est, en imprimerie, une suite de mots sans signification utilisée à titre provisoire pour calibrer une mise en page, le texte définitif venant remplacer le faux-texte dès ",
-        },
-        {
-          src: "4.jpg",
-          title: "Surface Studio",
-          text: "Le lorem ipsum est, en imprimerie, une suite de mots sans signification utilisée à titre provisoire pour calibrer une mise en page, le texte définitif venant remplacer le faux-texte dès ",
-        },
-        {
-          src: "5.jpg",
-          title: "Surface Studio",
-          text: "Le lorem ipsum est, en imprimerie, une suite de mots sans signification utilisée à titre provisoire pour calibrer une mise en page, le texte définitif venant remplacer le faux-texte dès ",
-        },
-      ],
-    };
+const items = [
+  {
+    src: "7.jpg",
+    title: "Surface Studio",
+    text: "Le lorem ipsum est, en imprimerie, une suite de mots sans signification utilisée à titre provisoire pour calibrer une mise en page, le texte définitif venant remplacer le faux-texte dès ",
   },
-};
+  {
+    src: "1.jpg",
+    title: "Surface Studio",
+    text: "Le lorem ipsum est, en imprimerie, une suite de mots sans signification utilisée à titre provisoire pour calibrer une mise en page, le texte définitif venant remplacer le faux-texte dès ",
+  },
+  {
+    src: "2.jpg",
+    title: "Surface Studio",
+    text: "Le lorem ipsum est, en imprimerie, une suite de mots sans signification utilisée à titre provisoire pour calibrer une mise en page, le texte définitif venant remplacer le faux-texte dès ",
+  },
+  {
+    src: "3.jpg",
+    title: "Surface Studio",
+    text: "Le lorem ipsum est, en imprimerie, une suite de mots sans signification utilisée à titre provisoire pour calibrer une mise en page, le texte définitif venant remplacer le faux-texte dès ",
+  },
+  {
+    src: "4.jpg",
+    title: "Surface Studio",
+    text: "Le lorem ipsum est, en imprimerie, une suite de mots sans signification utilisée à titre provisoire pour calibrer une mise en page, le texte définitif venant remplacer le faux-texte dès ",
+  },
+  {
+    src: "5.jpg",
+    title: "Surface Studio",
+    text: "Le lorem ipsum est, en imprimerie, une suite de mots sans signification utilisée à titre provisoire pour calibrer une mise en page, le texte définitif venant remplacer le faux-texte dès ",
+  },
+];
 </script>
 <style scoped>
 .top {

@@ -6,7 +6,7 @@ import { authMiddleware } from '~/middlewares/authMiddleware'
 const Router = express.Router()
 
 Router.route('/')
-  .get(cartController.getCart)
+  .get(authMiddleware.isAuthorized, cartController.getCart)
   .post(authMiddleware.isAuthorized, cartValidation.addItem, cartController.addItem)
 
 Router.route('/items')

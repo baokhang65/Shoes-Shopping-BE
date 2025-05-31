@@ -1,18 +1,13 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+import vuetify from 'vite-plugin-vuetify'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
   plugins: [
-    vue({ 
-      template: { transformAssetUrls }
-    }),
+    vue(),
     vuetify({
       autoImport: true,
-      styles: {
-        configFile: 'src/styles/settings.scss',
-      },
     }),
   ],
   define: { 'process.env': {} },
@@ -27,5 +22,8 @@ export default defineConfig({
     fs: {
       strict: false
     },
+    hmr: {
+      overlay: true
+    }
   },
 })

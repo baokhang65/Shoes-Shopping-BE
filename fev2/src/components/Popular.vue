@@ -2,8 +2,7 @@
   <v-row>
     <v-col cols="3" sm="3" v-for="(popular, i) in populars" :key="i">
       <v-card class="mx-auto my-12 pb-4" max-width="374">
-        <v-img height="250" class="mx-4" :src="popular.img"
-          lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" loading="lazy"></v-img>
+        <v-img height="250" class="mx-4" :src="popular.img" loading="lazy" :alt="popular.title"></v-img>
 
         <v-card-item class="mt-n4">
           <v-card-title class="text-center">{{ popular.title }}</v-card-title>
@@ -25,39 +24,46 @@
   </v-row>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-
-const populars = ref([
-  {
-    img: "image/1.png",
-    title: "Appel Mac Book Pro",
-    price: "$ 93.358.01",
-    bio: " Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
-  },
-  {
-    img: "image/2.png",
-    title: "Appel Mac Book Pro",
-    price: "$ 93.358.01",
-    bio: " Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
-  },
-  {
-    img: "image/3.png",
-    title: "Appel Mac Book Pro",
-    price: "$ 93.358.01",
-    bio: " Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
-  },
-  {
-    img: "image/4.png",
-    title: "Appel Mac Book Pro",
-    price: "$ 93.358.01",
-    bio: " Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
-  },
-]);
+<script>
+export default {
+  name: 'Popular',
+  data: () => ({
+    populars: [
+      {
+        img: "image/1.png",
+        title: "Appel Mac Book Pro",
+        price: "$ 93.358.01",
+        bio: " Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
+      },
+      {
+        img: "image/2.png",
+        title: "Appel Mac Book Pro",
+        price: "$ 93.358.01",
+        bio: " Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
+      },
+      {
+        img: "image/3.png",
+        title: "Appel Mac Book Pro",
+        price: "$ 93.358.01",
+        bio: " Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
+      },
+      {
+        img: "image/4.png",
+        title: "Appel Mac Book Pro",
+        price: "$ 93.358.01",
+        bio: " Small plates, salads & sandwiches - an intimate setting with 12 indoor seats plus patio seating.",
+      },
+    ],
+  }),
+};
 </script>
 
 <style scoped>
 .v-img {
-  transition: opacity 0.3s ease-in-out;
+  transition: transform 0.3s ease;
+}
+
+.v-img:hover {
+  transform: scale(1.05);
 }
 </style>

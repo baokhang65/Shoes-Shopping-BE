@@ -6,12 +6,7 @@
         <v-row>
           <v-col cols="12" sm="12">
             <v-carousel>
-              <v-carousel-item
-                v-for="(item, i) in items"
-                :key="i"
-                :src="item.src"
-                cover
-              >
+              <v-carousel-item v-for="(item, i) in items" :key="i" :src="item.src" cover>
                 <v-row>
                   <v-col cols="12" sm="6">
                     <div class="d-flex fill-height justify-center align-center">
@@ -37,7 +32,12 @@
             <v-btn icon="mdi mdi-chevron-right"></v-btn>
           </v-toolbar>
           <v-col cols="12" sm="12" class="mt-n10">
-            <Popular />
+            <Suspense>
+              <Popular />
+              <template #fallback>
+                <v-progress-circular indeterminate></v-progress-circular>
+              </template>
+            </Suspense>
           </v-col>
           <v-toolbar color="transparent" class="mt-n10">
             <v-toolbar-title>Featured Products</v-toolbar-title>
@@ -47,27 +47,35 @@
             <v-btn icon="mdi mdi-chevron-right"></v-btn>
           </v-toolbar>
           <v-col cols="12" sm="12" class="mt-n10">
-            <Featured />
+            <Suspense>
+              <Featured />
+              <template #fallback>
+                <v-progress-circular indeterminate></v-progress-circular>
+              </template>
+            </Suspense>
           </v-col>
           <v-col cols="12" sm="12" class="mt-n10">
-            <Client />
+            <Suspense>
+              <Client />
+              <template #fallback>
+                <v-progress-circular indeterminate></v-progress-circular>
+              </template>
+            </Suspense>
           </v-col>
 
           <v-col cols="12" sm="12" class="mt-n10">
             <v-row>
-              <v-col cols="3" sm="4">
-                <v-card class="mx-auto my-12 pb-4" max-width="374">
+              <v-col cols="3" sm="4" v-for="(watch, index) in watches" :key="index">
+                <v-card class="mx-auto my-12 pb-4" :max-width="374" :color="watch.color">
                   <v-row>
                     <v-col cols="12" sm="6">
                       <v-card-item class="mt-10">
-                        <v-card-title class="text-center"
-                          >Smart watch</v-card-title
-                        >
+                        <v-card-title class="text-center">{{ watch.title }}</v-card-title>
                       </v-card-item>
 
                       <v-card-text>
                         <div class="text-center">
-                          Small plates, salads & sandwiches
+                          {{ watch.description }}
                         </div>
                         <div class="text-center mt-4">
                           <v-btn color="black">Buy Now</v-btn>
@@ -75,69 +83,9 @@
                       </v-card-text>
                     </v-col>
                     <v-col cols="12" sm="6">
-                      <v-img
-                        height="250"
-                        class="mx-4"
-                        src="image/13.jpg"
-                      ></v-img>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </v-col>
-              <v-col cols="3" sm="4">
-                <v-card class="mx-auto my-12 pb-4" max-width="374" color="red">
-                  <v-row>
-                    <v-col cols="12" sm="6">
-                      <v-card-item class="mt-10">
-                        <v-card-title class="text-center"
-                          >Smart watch</v-card-title
-                        >
-                      </v-card-item>
-
-                      <v-card-text>
-                        <div class="text-center">
-                          Small plates, salads & sandwiches
-                        </div>
-                        <div class="text-center mt-4">
-                          <v-btn color="black">Buy Now</v-btn>
-                        </div>
-                      </v-card-text>
-                    </v-col>
-                    <v-col cols="12" sm="6">
-                      <v-img
-                        height="250"
-                        class="mx-4"
-                        src="image/14.jpg"
-                      ></v-img>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </v-col>
-              <v-col cols="3" sm="4">
-                <v-card class="mx-auto my-12 pb-4" max-width="374">
-                  <v-row>
-                    <v-col cols="12" sm="6">
-                      <v-card-item class="mt-10">
-                        <v-card-title class="text-center"
-                          >Smart watch</v-card-title
-                        >
-                      </v-card-item>
-
-                      <v-card-text>
-                        <div class="text-center">
-                          Small plates, salads & sandwiches
-                        </div>
-                        <div class="text-center mt-4">
-                          <v-btn color="black">Buy Now</v-btn>
-                        </div>
-                      </v-card-text>
-                    </v-col>
-                    <v-col cols="12" sm="6">
-                      <v-img
-                        height="250"
-                        class="mx-4"
-                        src="image/15.jpg"
-                      ></v-img>
+                      <v-img height="250" class="mx-4" :src="watch.image"
+                        lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
+                        loading="lazy"></v-img>
                     </v-col>
                   </v-row>
                 </v-card>
@@ -148,16 +96,43 @@
       </v-container>
       <Footer />
     </v-main>
+    <ScrollToTopButton />
   </v-app>
 </template>
 
 <script setup>
+import { defineAsyncComponent } from 'vue'
 import NavBar from "@/components/NavBar.vue";
 import Footer from "@/components/Footer.vue";
-import Popular from "@/components/Popular.vue";
-import Featured from "@/components/Featured.vue";
-import Client from "@/components/Client.vue";
+import ScrollToTopButton from '@/components/ScrollToTopButton.vue'
+
+// Lazy load components
+const Popular = defineAsyncComponent(() => import("@/components/Popular.vue"));
+const Featured = defineAsyncComponent(() => import("@/components/Featured.vue"));
+const Client = defineAsyncComponent(() => import("@/components/Client.vue"));
+
+const watches = [
+  {
+    title: "Smart watch",
+    description: "Small plates, salads & sandwiches",
+    image: "image/13.jpg",
+    color: null
+  },
+  {
+    title: "Smart watch",
+    description: "Small plates, salads & sandwiches",
+    image: "image/14.jpg",
+    color: "red"
+  },
+  {
+    title: "Smart watch",
+    description: "Small plates, salads & sandwiches",
+    image: "image/15.jpg",
+    color: null
+  }
+];
 </script>
+
 <script>
 export default {
   data() {
@@ -202,10 +177,12 @@ export default {
 .top {
   margin-top: 100px;
 }
+
 .text {
   margin-top: -40px;
   margin-left: 80px;
 }
+
 .top-day {
   margin-top: 120px;
 }

@@ -12,11 +12,11 @@
         </v-col>
 
         <v-col cols="12" sm="6" md="4" class="d-flex justify-end">
-          <v-btn icon="mdi-facebook"   variant="text" aria-label="Facebook" />
-          <v-btn icon="mdi-instagram"  variant="text" aria-label="Instagram" />
-          <v-btn icon="mdi-twitter"    variant="text" aria-label="Twitter" />
-          <v-btn icon="mdi-linkedin"   variant="text" aria-label="LinkedIn" />
-          <v-btn icon="mdi-youtube"    variant="text" aria-label="YouTube" />
+          <v-btn icon="mdi-facebook" variant="text" aria-label="Facebook" />
+          <v-btn icon="mdi-instagram" variant="text" aria-label="Instagram" />
+          <v-btn icon="mdi-twitter" variant="text" aria-label="Twitter" />
+          <v-btn icon="mdi-linkedin" variant="text" aria-label="LinkedIn" />
+          <v-btn icon="mdi-youtube" variant="text" aria-label="YouTube" />
         </v-col>
       </v-row>
 
@@ -40,5 +40,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

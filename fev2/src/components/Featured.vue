@@ -13,14 +13,8 @@
             {{ feature.bio }}
           </div>
           <v-row align="center" class="mx-0 mt-2">
-            <v-rating
-              :model-value="4.5"
-              color="amber"
-              density="compact"
-              half-increments
-              readonly
-              size="small"
-            ></v-rating>
+            <v-rating :model-value="4.5" color="amber" density="compact" half-increments readonly
+              size="small"></v-rating>
             <v-spacer></v-spacer>
             <div class="text-grey ms-4">{{ feature.price }}</div>
           </v-row>

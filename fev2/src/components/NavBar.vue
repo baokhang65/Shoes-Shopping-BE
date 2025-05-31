@@ -1,123 +1,260 @@
 <template>
-  <v-app-bar flat>
-    <v-btn href="#" text class="nav-text nav-title">
-      <v-app-bar-title class="nav-text nav-title custom-title">
-        <span class="color-j">J</span>
-        <span class="color-9">9</span>
-        <span class="color-7">7</span>
-        <span class="color-store"> Store</span>
-      </v-app-bar-title>
-    </v-btn>
+  <!-- NAVBAR -->
+  <v-app-bar flat height="64" class="elevation-0">
+    <v-container fluid class="d-flex align-center justify-space-between px-4">
+      <!-- Logo -->
+      <router-link to="/" class="navbar-logo text-decoration-none">J97Store</router-link>
 
-    <v-spacer></v-spacer>
-    <v-spacer></v-spacer>
+      <!-- Center Menu -->
+      <nav class="navbar-menu d-none d-md-flex align-center">
+        <router-link to="/adidas" class="navbar-link">ADIDAS</router-link>
+        <router-link to="/nike" class="navbar-link">NIKE</router-link>
+        <router-link to="/vans" class="navbar-link">VANS</router-link>
+      </nav>
 
-    <nav class="nav-menu">
-      <a href="#" class="nav-item nav-text">ADIDAS</a>
-      <a href="#" class="nav-item nav-text">NIKE</a>
-      <a href="#" class="nav-item nav-text">VANS</a>
-    </nav>
+      <!-- Right Section -->
+      <div class="navbar-icons d-flex align-center">
+        <!-- Nike-like Search -->
+        <div class="search-input-container d-flex align-center mr-2" :class="{ focused: searchFocus }">
+          <v-btn icon variant="text" size="x-small" aria-label="Search" class="search-start-btn" @click="performSearch">
+            <v-icon size="20">mdi-magnify</v-icon>
+          </v-btn>
+          <input type="search" class="search-input" placeholder="Search" v-model="searchQuery"
+            @focus="searchFocus = true" @blur="onBlur" @keyup.enter="performSearch" />
+          <v-btn icon variant="text" size="x-small" aria-label="Reset Search" class="search-end-btn" v-if="searchQuery"
+            @click="clearSearch">
+            <v-icon size="20">mdi-close</v-icon>
+          </v-btn>
+        </div>
 
-    <v-spacer></v-spacer>
+        <!-- Account icon or Login button -->
+        <template v-if="!userStore.isAuthenticated">
+          <router-link to="/login" class="rounded-login-button">
+            Login
+          </router-link>
+        </template>
 
-    <v-text-field density="compact" variant="outlined" placeholder="Search products" append-inner-icon="mdi-magnify"
-      single-line hide-details class="search-input" />
+        <template v-else>
+          <v-menu offset-y right transition="slide-y-transition" origin="top">
+            <template #activator="{ props }">
+              <v-btn icon variant="text" v-bind="props" aria-label="Account">
+                <v-icon>mdi-account-circle</v-icon>
+              </v-btn>
+            </template>
 
-    <v-btn prepend-icon="mdi-account-circle-outline" text class="nav-text">
-      Sign In / Login
-    </v-btn>
+            <v-list>
+              <v-list-item link>
+                <v-list-item-icon><v-icon>mdi-account</v-icon></v-list-item-icon>
+                <v-list-item-title>{{ userStore.user.displayName }}</v-list-item-title>
+              </v-list-item>
 
-    <v-btn icon="mdi-cart-outline" size="small" variant="text"></v-btn>
+              <v-list-item link>
+                <v-list-item-icon><v-icon>mdi-account-box</v-icon></v-list-item-icon>
+                <v-list-item-title>Change Password</v-list-item-title>
+              </v-list-item>
+
+              <v-list-item link to="/order">
+                <v-list-item-icon><v-icon>mdi-list-box</v-icon></v-list-item-icon>
+                <v-list-item-title>View Orders</v-list-item-title>
+              </v-list-item>
+
+              <v-list-item link @click="logout">
+                <v-list-item-icon><v-icon>mdi-logout</v-icon></v-list-item-icon>
+                <v-list-item-title>Logout</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </template>
+
+        <!-- Cart icon with badge -->
+        <router-link to="/cart" class="text-decoration-none">
+          <v-btn icon variant="text" aria-label="Cart" class="position-relative">
+            <v-badge :content="cartStore.count" color="#111" overlap floating class="custom-badge">
+              <v-icon>mdi-cart-outline</v-icon>
+            </v-badge>
+          </v-btn>
+        </router-link>
+      </div>
+    </v-container>
   </v-app-bar>
 </template>
 
-<script>
-export default {};
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useCartStore } from '@/stores/cart'
+import { userStore } from '@/stores/userStore'
+
+const cartStore = useCartStore()
+const searchQuery = ref('')
+const searchFocus = ref(false)
+
+onMounted(() => {
+  userStore.fetchProfile()
+})
+
+function performSearch() {
+  if (!searchQuery.value) return
+  console.log('Search:', searchQuery.value)
+}
+function clearSearch() {
+  searchQuery.value = ''
+}
+function onBlur() {
+  setTimeout(() => {
+    if (!document.activeElement.classList.contains('search-input')) {
+      searchFocus.value = false
+    }
+  }, 100)
+}
+
+function logout() {
+  userStore.logout()
+}
 </script>
 
 <style scoped>
-.search-input {
-  max-width: 240px;
-  --v-field-border-radius: 6px;
-  margin-right: 12px;
+.v-app-bar {
+  background: #fff;
 }
 
-.v-btn.text.nav-text {
-  margin-left: 12px;
-  margin-right: 12px;
+.navbar-logo {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #111;
 }
 
-.v-btn[icon="mdi-cart-outline"] {
-  margin-left: 12px;
+.navbar-menu {
+  gap: 40px;
 }
 
-.nav-menu {
-  display: flex;
-  gap: 32px;
-  align-items: center;
-}
-
-.nav-text {
+.navbar-link {
   font-family: 'Roboto', sans-serif;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 14px;
   color: #111;
-  text-transform: none;
-}
-
-.nav-title {
-  font-size: 24px;
-  font-weight: 700;
-}
-
-/* Custom màu từng chữ trong title */
-.custom-title span {
-  display: inline-block;
-  /* giữ khoảng cách chữ nếu cần */
-}
-
-.color-j {
-  color: #fd4c4c;
-}
-
-.color-9 {
-  color: #7c83f2;
-}
-
-.color-7 {
-  color: #62ffb9;
-}
-
-.color-store {
-  color: #111;
-  /* Màu đen như cũ */
-}
-
-/* Menu link underline effect */
-.nav-item {
-  position: relative;
   text-decoration: none;
-  padding-bottom: 6px;
-  cursor: pointer;
-  transition: color 0.3s ease;
+  position: relative;
+  transition: color .3s;
 }
 
-.nav-item::after {
+.navbar-link::after {
   content: '';
   position: absolute;
-  bottom: 0;
+  bottom: -4px;
   left: 0;
-  height: 2px;
   width: 0;
-  background-color: #111;
-  transition: width 0.3s ease;
+  height: 2px;
+  background: #111;
+  transition: width .3s;
 }
 
-.nav-item:hover::after {
+.navbar-link:hover::after {
   width: 100%;
 }
 
-.nav-item:hover {
+.navbar-link:hover {
   color: #000;
+}
+
+.navbar-icons .v-btn {
+  margin-left: 12px;
+}
+
+.navbar-icons .v-icon {
+  color: #111;
+}
+
+.search-input-container {
+  background: #f5f5f5;
+  border-radius: 999px;
+  padding: 4px 8px;
+  transition: background .2s;
+}
+
+.search-input-container.focused {
+  background: #e9e9e9;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 4px 6px;
+  font-size: 14px;
+  width: 120px;
+  color: #111;
+}
+
+.search-input::placeholder {
+  color: #8d8d8d;
+}
+
+.search-start-btn,
+.search-end-btn {
+  --v-btn-size: 24px;
+  --v-icon-size: 20px;
+  padding: 0;
+  min-width: 24px !important;
+}
+
+.search-start-btn .v-btn__overlay,
+.search-end-btn .v-btn__overlay {
+  background: transparent !important;
+}
+
+.text-decoration-none {
+  text-decoration: none;
+}
+
+.position-relative {
+  position: relative;
+}
+
+.v-list-item {
+  display: flex;
+  align-items: center;
+}
+
+.v-list-item-icon {
+  margin-right: 12px;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.v-list-item-content {
+  display: flex;
+  align-items: center;
+}
+
+.v-list-item-title {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  padding-left: 16px;
+  height: 100%;
+}
+
+.rounded-login-button {
+  padding: 4px 16px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #111;
+  background-color: transparent;
+  margin-left: 20px;
+  color: #111;
+  border-radius: 999px;
+  height: 36px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.rounded-login-button:hover {
+  background-color: #f0f0f0;
 }
 </style>
